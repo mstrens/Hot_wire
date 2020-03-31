@@ -1,14 +1,16 @@
 # Hot_wire
+
+This application runs on a PC and allows to control a CNC 4 axis hot wire in order to cut e.g. wings in foam.
+
 This application is writen in Python 3 (and uses some Python packages) .
 So, it is supposed to run on Windows, Linux and Mac
-
-It runs on a PC and allows to control a CNC 4 axis hot wire in order to cut e.g. wings.
+It uses a graphical user interface si is quite easy to use. 
 
 The CNC has to run a 4 axis version of GRBL version 1.1
-The easiest solution for running GRBL is to use an arduino mega combined with a RAMP 1.x board.
+The easiest/cheapest solution for running GRBL is to use an arduino mega combined with a RAMP 1.x board.
 A GRBL version running on this hardware is in the folder. It is a fork from GRBL made by ??? 
 
-An alternative could be to use a version of GRBL running a STM32F103 (blue pill). This can be connected to a RAMP 1.x or directly to drivers like TB6600
+An alternative could be to use a version of GRBL running a STM32F103 (blue pill). This can be connected to a RAMP 1.x or directly to drivers like TB6600. Such a GRBL version is available on this Github site. 
 
 In this python application you can
 - define the characteristics of your table (dimension, speed, com port, baudrate, ...)
