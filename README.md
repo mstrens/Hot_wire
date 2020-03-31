@@ -1,8 +1,8 @@
 # Hot_wire
-This application is writen in Python 3
+This application is writen in Python 3 (and uses some Python packages) .
+So, it is supposed to run on Windows, Linux and Mac
 
 It runs on a PC and allows to control a CNC 4 axis hot wire in order to cut e.g. wings.
-
 
 The CNC has to run a 4 axis version of GRBL version 1.1
 The easiest solution for running GRBL is to use an arduino mega combined with a RAMP 1.x board.
@@ -20,4 +20,19 @@ In this python application you can
 - generate and save the gcode for cutting the profiles in the foam
 - send the generated gcode to GRBL
 - save and reload previous projects, tables, materials
+
+In order to run the application, you have to install:
+- python 3 latest version ( I tested it with version 3.7)
+- tkinter (normally already included in python)
+- mathplotlib
+- numpy
+- configparser
+- shapely
+- scipy
+- serial
+- time  (normally already included in python)
+- threading (normally already included in python)
+- atexit (normally already included in python)
+- queue (normally already included in python)
+
 
