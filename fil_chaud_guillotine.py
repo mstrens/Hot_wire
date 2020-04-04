@@ -190,12 +190,12 @@ class Guillotine:
     def calculateMove(self , factor):
         axis = self.app.gCodeLetters.get()
         if self.app.gType.get() == "Vertical":
-            move = axis[0] + str(factor * self.app.gVDist.get()) + axis[2] + str(factor * self.app.gVDist.get()) 
+            move = axis[1] + str(factor * self.app.gVDist.get()) + axis[3] + str(factor * self.app.gVDist.get()) 
         elif  self.app.gType.get() == "Horizontal":
-            move = axis[1] + str(factor * self.app.gHDist.get()) + axis[3] + str(factor * self.app.gHDist.get()) 
+            move = axis[0] + str(factor * self.app.gHDist.get()) + axis[2] + str(factor * self.app.gHDist.get()) 
         else:
-            move = axis[0] + str(factor * self.app.gVDist.get()) + axis[1] + str(factor * self.app.gHDist.get()) + (
-                axis[2] + str(factor * self.app.gVDist.get()) + axis[3] + str(factor * self.app.gHDist.get()) )
+            move = axis[1] + str(factor * self.app.gVDist.get()) + axis[0] + str(factor * self.app.gHDist.get()) + (
+                axis[3] + str(factor * self.app.gVDist.get()) + axis[2] + str(factor * self.app.gHDist.get()) )
         return move
     
     def goForward(self):

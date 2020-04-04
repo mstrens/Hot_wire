@@ -24,20 +24,8 @@ from fil_chaud_table import Table
 from fil_chaud_grbl import Grbl
 
 """ to do
-- donner un message quand les profils ne sont pas connus ou n'ont pas le même nombre de points.
-- définir une stategie pour le parcours du fil pour entrer dans le bloc (un standard est déjà fait)
-- générer le parcours des 4 axes (vérifier que l'on tient bien compte de l'aile gauche/droite, inverser le sens de l'offset)
-- générer le Gcode
-- dans la génération du Gcode, ajouter la vitesse (pour chaque segment) et la chauffe
-- permettre de sauvegarder un fichier Gcode
-- permettre d'exécuter un fichier Gcode
-- dans l'écran Move, afficher les messages de GRBL
 - afficher les trailing et leading position du bloc jusqu'à l'axe YG et YD
 - afficher les parcours des axes
-- détecter les cas où l'on dépasse les limites de la table (dimension, vitesse) ou du bloc
-- calculer le % de chauffe et le convertir en valeur de Gcode
-- 
-- donner des erreurs si le nbr de points est différent entre root et tip
 """
 """
 oRoot and oTip = original profil (displayed on tab profil)
@@ -269,13 +257,13 @@ class App:
         
         #cut
         self.vCut = DoubleVar(value='5.0')        # max speed for cutting (on root or tip depending the longest
-        self.gCodeStart1 = StringVar(value="G90 G21 M3")
-        self.gCodeStart2 = StringVar(value="G04 P5.0")
-        self.gCodeStart3 = StringVar(value="G01 X0 F120 S60")
+        self.gCodeStart1 = StringVar(value="")
+        self.gCodeStart2 = StringVar(value="")
+        self.gCodeStart3 = StringVar(value="")
         self.gCodeStart4 = StringVar(value="")
-        self.gCodeEnd1 = StringVar(value="G04 P5.0")
-        self.gCodeEnd2 = StringVar(value="M5")
-        self.gCodeEnd3 = StringVar(value="M2")
+        self.gCodeEnd1 = StringVar(value="")
+        self.gCodeEnd2 = StringVar(value="")
+        self.gCodeEnd3 = StringVar(value="")
         self.gCodeEnd4 = StringVar(value="")
         self.gCodeLetters = StringVar(value="XYZA")
         
