@@ -39,4 +39,18 @@ In order to run the application, you have to install:
 
 Here some screen shots
 
-![Profil](https://github.com/mstrens/Hot_wire/blob/master/image/Cut.png)
+![Profil](https://github.com/mstrens/Hot_wire/blob/master/image/Profil.png)
+
+![Transform](https://github.com/mstrens/Hot_wire/blob/master/image/Transform.png)
+
+![Bloc](https://github.com/mstrens/Hot_wire/blob/master/image/Bloc.png)
+
+![Margin](https://github.com/mstrens/Hot_wire/blob/master/image/Margin.png)
+
+![Material](https://github.com/mstrens/Hot_wire/blob/master/image/Material.png)
+
+![Guillotine](https://github.com/mstrens/Hot_wire/blob/master/image/Guillotine.png)
+
+![Cut](https://github.com/mstrens/Hot_wire/blob/master/image/Cut.png)
+
+![Table](https://github.com/mstrens/Hot_wire/blob/master/image/Table.png)
