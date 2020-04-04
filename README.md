@@ -37,4 +37,6 @@ In order to run the application, you have to install:
 - atexit (normally already included in python)
 - queue (normally already included in python)
 
+Here some screen shots
 
+![Profil](https://github.com/mstrens/Hot_wire/blob/master/image/Cut.png)
