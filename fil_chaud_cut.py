@@ -47,8 +47,8 @@ class Cut:
         self.figRoot = Figure(figsize=(10, 3), dpi=100)
         self.axesRoot = self.figRoot.add_subplot(1,1,1)
         self.axesRoot.autoscale(enable=False)
-        self.axesRoot.set_xlim(0, 500)
-        self.axesRoot.set_ybound(0, 150)
+        self.axesRoot.set_xlim(0, 1300)
+        self.axesRoot.set_ybound(0, 400)
         self.axesRoot.set_title('Root')
         self.lineRoot1, = self.axesRoot.plot( [], [] ) 
         self.lineRoot2, = self.axesRoot.plot( [], [] )
@@ -59,8 +59,8 @@ class Cut:
         self.figTip = Figure(figsize=(10, 3), dpi=100)
         self.axesTip = self.figTip.add_subplot(1,1,1)
         self.axesTip.autoscale(enable=False)
-        self.axesTip.set_xlim(0, 500)
-        self.axesTip.set_ybound(0, 150)
+        self.axesTip.set_xlim(0, 1300)
+        self.axesTip.set_ybound(0, 400)
         self.axesTip.set_title('Tip')
         self.lineTip1, = self.axesTip.plot( [], [] ) 
         self.lineTip2, = self.axesTip.plot( [], [] )
@@ -152,11 +152,12 @@ class Cut:
             #print('full radiance root', eRootR)
             eTipR =  self.createRadiance(eTipS , rTip)
             #print('full radiance tip', eTipR)
-            #calcule l'offset de chaque côté; create one new point at each synchronisationil y a des points créé en trop
+            # calculate offset on each side; create one new point at each synchronisation to take care of different radiance offsets
             self.offsetRootX , self.offsetRootY ,self.offsetRootS = self.calculateOffset(eRootX, eRootY, eRootR ,eRootS)
             #print("offset root", list(zip( self.offsetRootX , self.offsetRootY ,self.offsetRootS)))
             self.offsetTipX , self.offsetTipY , self.offsetTipS = self.calculateOffset(eTipX, eTipY, eTipR, eTipS)
             #print("len R T",len(self.offsetRootX) , len(self.offsetTipX) )
+            # adjust points in order to have the same number of points on each section
             self.syncRX , self.syncRY , self.syncTX, self.syncTY = self.synchrAllSections(
                 self.offsetRootX , self.offsetRootY ,self.offsetRootS , self.offsetTipX , self.offsetTipY , self.offsetTipS)
 
@@ -168,23 +169,22 @@ class Cut:
             print("distance offset Rx Ry", self.printDistance(self.offsetRootX , self.offsetRootY))
             print("distance offset Tx Ty",  self.printDistance(self.offsetTipX , self.offsetTipY))
             """
-            #élimine les points trop rapprochés (si c'est des 2 côtés)
+            #Remove points if they are to close from each other (on both sides)
             #print("Offset ", self.offsetRootX , self.offsetRootY , self.offsetTipX , self.offsetTipY)
-            
             self.oSimRX , self.oSimRY, self.oSimTX , self.oSimTY = self.simplifyProfiles(
                 self.syncRX , self.syncRY , self.syncTX, self.syncTY )
 
             #print("len before after",  len(self.syncRX), len(self.oSimRX))    
             
-            #Calculate projections on cnc axis and speed
+            #Calculate projections on cnc axis, messages, speed and feedRate (inverted)
             if self.app.leftRightWing.get() == 'Right': #for right wing, the root is on the left side
-                self.GX , self.DX , self.GY, self.DY, self.warningMsg , self.speed = self.projectionAll(
+                self.GX , self.DX , self.GY, self.DY, self.warningMsg , self.speed , self.feedRate = self.projectionAll(
                     self.oSimRX , self.oSimTX , self.oSimRY, self.oSimTY, 
                     self.app.blocToTableLeft.get() + self.app.tableYG.get() , 
                     self.app.blocLX.get() ,
                     self.app.tableYY.get() -self.app.blocToTableLeft.get() - self.app.tableYG.get() - self.app.blocLX.get() )
             else: #Left wing = root is on rigth side
-                self.GX , self.DX , self.GY, self.DY, self.warningMsg, self.speed = self.projectionAll(
+                self.GX , self.DX , self.GY, self.DY, self.warningMsg, self.speed, self.feedRate = self.projectionAll(
                     self.oSimTX, self.oSimRX , self.oSimTY ,self.oSimRY,  
                     self.app.blocToTableLeft.get() + self.app.tableYG.get() , 
                     self.app.blocLX.get() ,
@@ -201,7 +201,7 @@ class Cut:
             # revient à la verticale de l'origine puis à l'origine
             # attend 5 sec puis éteint la chauffe puis éteint les moteurs
             
-            self.gcode = self.generateGcode(self.GX , self.DX , self.GY, self.DY, self.speed)
+            self.gcode = self.generateGcode(self.GX , self.DX , self.GY, self.DY, self.speed, self.feedRate)
 
             
             
@@ -236,7 +236,7 @@ class Cut:
         return result
 
 
-    def generateGcode(self, GX , DX , GY, DY, axisSpeed):
+    def generateGcode(self, GX , DX , GY, DY, axisSpeed, feedRate):
         #gCodeStart ="G10 L20 P1 X0 Y0 Z0 A0 \n G90 G21 M3 \n G04 P5.0\n G01 X0 \n"
         #gCodeEnd = "G04 P5.0\n M5\n M2\n"
         heat = self.app.tGuillotine.calculateHeating(self.app.vCut.get())
@@ -250,10 +250,10 @@ class Cut:
         st = st + "G10 L20 P1"+ xyza.format(0,0,0,0) #set wcs to current position: G10 L20 P1 X0 Y0 Z0 A0
         st = st + "G54\n" # apply wcs1
         st = st + "S{:d}\n".format( int(heat)) # set the heating value based on speed
-        st = st + "G90 G21 M3\n" # apply  Absolute and mm and heating
+        st = st + "G90 G21 G93 M3\n" # apply  Absolute and mm and inverted feedrate and heating
         st = st + "G04 P{:.1f}\n".format(self.app.tPreHeat.get()) # pause for the preheat delay
         en = "G04 P{:.1f}\n".format(self.app.tPostHeat.get()) # pause for the post delay
-        en = en + "M5\nM2\n" # stop heating and stop motor
+        en = en + "G94\nM5\nM2\n" # go back to normal feedrate , stop heating and stop motor
         en = en + self.app.gCodeEnd1.get() + "\n" + self.app.gCodeEnd2.get() + "\n" + self.app.gCodeEnd3.get() + "\n" + self.app.gCodeEnd4.get() + "\n"           
         li=[]
         imax = len(GX)
@@ -263,7 +263,7 @@ class Cut:
             li.append(G00.format(0.0, GY[0] , 0.0 , DY[0]), ) #move up
             li.append(G00.format(GX[0], GY[0] , DX[0] , DY[0]), ) #move up to entry of bloc
             while i < imax:
-                li.append(G01.format(GX[i], GY[i] , DX[i] , DY[i] , int(axisSpeed[i-1] * 60 ) ) ) #speed is converted to mm/min
+                li.append(G01.format(GX[i], GY[i] , DX[i] , DY[i] , int(feedRate[i-1]  ) ) ) # we use inverted feedRate
                 i += 1
             li.append(G00.format(0, GY[-1] , 0 , DY[-1]))
             li.append(G00.format(0.0, 0.0 , 0.0 , 0.0))
@@ -282,7 +282,8 @@ class Cut:
         xd = []
         yg = []
         yd = []
-        speed = []
+        speed = [] # in mm/sec
+        feedRate=[] # inverted feed rate for G93: e.g. 2 means that the movement has to be executed in 1/2 min 
         xgmin = x1[0]
         xgmax = x1[0]
         xdmin = x2[0]
@@ -334,6 +335,7 @@ class Cut:
                         dD = math.sqrt(dD)
                         v1 = self.app.vCut.get()
                         speed.append( v1 * dG / d1)
+                        feedRate.append( v1 / d1 * 60 )
                         vGD = v1 * dG / d1
                         vxG = v1 * dxG / d1
                         vyG = v1 * dyG / d1
@@ -346,6 +348,7 @@ class Cut:
                         dD = math.sqrt(dD)
                         v2 = self.app.vCut.get()
                         speed.append( v2 * dD / d2)
+                        feedRate.append( v2 / d2 * 60 )
                         vGD = v2 * dD / d2
                         vxG = v2 * dxG / d2
                         vyG = v2 * dyG / d2
@@ -382,7 +385,7 @@ class Cut:
                 msg = msg + "Right hor. axis exceeds speed\n"
             if vyDMax > self.app.vMaxZ.get():
                 msg = msg + "Right vertical axis exceeds speed\n"
-        return xg ,xd ,yg , yd , msg , speed
+        return xg ,xd ,yg , yd , msg , speed , feedRate
         
     def simplifyProfiles( self , rX , rY , tX , tY ):
         imax = len(rX)

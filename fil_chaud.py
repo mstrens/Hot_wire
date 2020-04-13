@@ -42,7 +42,7 @@ class App:
         self.initDone = False
         self.initGuiData()
         self.master = master
-        self.master.title("Découpe au fil chaud")
+        self.master.title("Hot wire cutter (version 0.1.a)")
         self.nb = ttk.Notebook(self.master)
         self.nb.enable_traversal()    
         self.queueTkSendMsg = queue.Queue()
@@ -570,6 +570,7 @@ class App:
         config.set("Guillotine", "gCuttingWhile", self.gCuttingWhile.get())
         config.set("Guillotine", "gVDist", str(self.gVDist.get()))
         config.set("Guillotine", "gHDist", str(self.gHDist.get()))
+
         
         configSaveFileName = filedialog.asksaveasfilename(title="Save as...", defaultextension="*.ini",\
             filetypes=[("Ini files","*.ini"),("All files", "*")], initialfile=self.configUploadFileName)

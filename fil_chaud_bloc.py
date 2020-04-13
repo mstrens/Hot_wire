@@ -64,7 +64,7 @@ class Bloc:
         tk.Radiobutton(self.frame, text="Right", variable=self.app.leftRightWing, value="Right",
             command=self.validateAllLevelBloc).grid(column=0, row=r, pady=(1,1), sticky=W)
         r += 1
-        tk.Label(self.frame, text="Distance between table and block (mm)").grid(column=0, row=r, pady=(1,1), sticky=W)
+        tk.Label(self.frame, text="Distance between table and block (mm)").grid(column=0, columnspan=2, row=r, pady=(1,1), sticky=W)
         r += 1
         tk.Radiobutton(self.frame, text="On the left side", variable=self.app.blocPosition, value="Left",
             command=self.blocPositionChanged).grid(column=0, row=r, pady=(1,1), sticky=W)
@@ -77,7 +77,7 @@ class Bloc:
         self.blocToTableRightBox = EntryFloat(self.frame, self.app.blocToTableRight , 0 , 1000, self.level , width='6' , state='disabled')
         self.blocToTableRightBox.grid(column=1, row=r , padx=1,pady=(1,1), sticky=W)
         r += 1
-        tk.Label(self.frame, text="Distance between table origin and ").grid(column=0, row=r, pady=(1,1), sticky=W)
+        tk.Label(self.frame, text="Distance between table origin and ").grid(column=0, columnspan=2, row=r, pady=(1,1), sticky=W)
         r += 1
         tk.Label(self.frame, text="   Root trailing edge").grid(column=0, row=r, pady=(1,1), sticky=W)
         EntryFloat(self.frame, self.app.blocToTableTrailingRoot , 0 , 500, self.level , width='6').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W)
@@ -86,16 +86,16 @@ class Bloc:
         tk.Entry(self.frame, textvariable=self.app.blocToTableTrailingTip , width='5' , state='disabled').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W)
         
         r += 1
-        tk.Label(self.frame, text="   Root leading edges").grid(column=0, row=r, pady=(1,1), sticky=W)
+        tk.Label(self.frame, text="   Root leading edge").grid(column=0, row=r, pady=(1,1), sticky=W)
         tk.Entry(self.frame, textvariable=self.app.blocToTableLeadingRoot , width='5', state='disabled').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W)
         r += 1
         tk.Label(self.frame, text="   Tip leading edge").grid(column=0, row=r, pady=(1,1), sticky=W)
         tk.Entry(self.frame, textvariable=self.app.blocToTableLeadingTip , width='5', state='disabled').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W)
         
-        self.blocTopFig = Figure(figsize=(10, 5), dpi=100)
+        self.blocTopFig = Figure(figsize=(8, 6), dpi=100)
         self.blocTopAxes = self.blocTopFig.add_subplot(1,1,1)
-        self.blocTopAxes.set_xlim(0, 1000)
-        self.blocTopAxes.set_ylim(0, 500)
+        self.blocTopAxes.set_xlim(0, 1600)
+        self.blocTopAxes.set_ylim(0, 1200)
         self.blocTopAxes.set_title('Top view')
         self.blocTopAxes.spines['top'].set_visible(False)
         self.blocTopAxes.spines['right'].set_visible(False)

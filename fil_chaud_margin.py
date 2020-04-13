@@ -86,8 +86,8 @@ class Margin:
         
         self.figRoot = Figure(figsize=(10, 2), dpi=100)
         self.axesRoot = self.figRoot.add_subplot(1,1,1)
-        self.axesRoot.set_xlim(0, 500)
-        self.axesRoot.set_ylim(0, 100)
+        self.axesRoot.set_xlim(0, 1300)
+        self.axesRoot.set_ylim(0, 260)
         self.axesRoot.set_title('Root')
         self.axesRoot.autoscale(enable=False)
         self.axesRoot.spines['top'].set_visible(False)
@@ -101,8 +101,8 @@ class Margin:
         
         self.figTip = Figure(figsize=(10, 2), dpi=100)
         self.axesTip = self.figTip.add_subplot(1,1,1)
-        self.axesTip.set_xlim(0,500)
-        self.axesTip.set_ylim(0, 100)
+        self.axesTip.set_xlim(0,1300)
+        self.axesTip.set_ylim(0, 260)
         self.axesTip.set_title('Tip')
         self.axesTip.autoscale(enable=False)
         self.axesTip.spines['top'].set_visible(False)

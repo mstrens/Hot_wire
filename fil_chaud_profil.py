@@ -149,8 +149,12 @@ class Profil:
             with open (FileName, 'rt') as myfile:
                 self.app.oRootX = []
                 self.app.oRootY = []
+                self.app.oRootS = []
                 self.app.oTipX = []
                 self.app.oTipY = []
+                self.app.oTipS = []
+                nbrSynchroRoot = 0
+                nbrSynchroTip = 0
                 for line in myfile:
                     if line == "[Emplanture]\n":
                         state = "Emplanture"
@@ -163,17 +167,21 @@ class Profil:
                             if state == "Emplanture":
                                 self.app.oRootX.append(float(l2[0]) )
                                 self.app.oRootY.append(float(l2[1]) )
+                                self.app.oRootS.append( int(l2[2]) & 4 ) # check only bit 2 for synchronisation
+                                if (self.app.oRootS[-1] == 4):
+                                    nbrSynchroRoot +=1 #count the number of synschro     
                             elif state == "Saumon":
                                 self.app.oTipX.append(float(l2[0]) )
                                 self.app.oTipY.append(float(l2[1]) )
+                                self.app.oTipS.append(int(l2[2])  & 4)
+                                if (self.app.oTipS[-1] == 4 ) :
+                                    nbrSynchrotip +=1 #count the number of synschro
                         elif l1[0] == "Ecartement":
                             self.app.blocLX.set(value= float(l1[1]))   
-            # calculate the height of Extrados, Intrados and Leading edge regarding trailing edge (taking coord into account)
-            #x ,y , self.app.hMaxRootNorm, self.app.hMinRootNorm , self.app.hLeadingRootNorm = self.app.normaliseProfil(
-            #    self.app.oRootX, self.app.oRootY, self.app.cRoot.get(), 0, 0)
-            #x ,y , self.app.hMaxTipNorm, self.app.hMinTipNorm , self.app.hLeadingTipNorm = self.app.normaliseProfil(
-            #    self.app.oTipX, self.app.oTipY, self.app.cTip.get(), 0, 0)
-            # redraw the profile
+            print ("synchro = " , nbrSynchroRoot , " " , nbrSynchroTip)    
+            if nbrSynchroRoot == 0 or nbrSynchroRoot != nbrSynchroTip: # discard synchro if not equal
+                self.app.oRootS = []
+                self.app.oTipS = []
             self.app.validateAll(0)
             
 

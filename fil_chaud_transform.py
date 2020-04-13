@@ -89,11 +89,11 @@ class Transform:
         tk.Label(self.frame, text="Reduce nbr of points").grid(column=0, row=r, pady=(1,1), sticky=E)
         tk.Checkbutton(self.frame, variable=self.app.reducePoints , text='' , command=self.validateAllLevelTransform).grid(column=1, row=r , padx=1,pady=(1,1))
         
-        r=12
+        r=22
         self.displayPoints = IntVar(value='1')
         tk.Checkbutton(self.frame, variable=self.displayPoints , text='Show points', command=self.validateAllLevelTransform).grid(column=2, row=r , padx=1,pady=(1,1))
         
-        r=14
+        r=24
         tk.Label(self.frame, textvariable=self.app.warningMsg, fg='red').grid(column=2, columnspan=5, row=r, pady=(1,1) )
         #tk.Label(self.frame, text="test", bg='red').grid(column=2, columnspan=5, row=r, pady=(1,1))
 
@@ -331,23 +331,23 @@ class Transform:
         self.canvasTip.draw()
         
     def plotProfil(self ):
-        self.figRoot = Figure(figsize=(10, 2), dpi=100)
+        self.figRoot = Figure(figsize=(10, 3), dpi=100)
         self.axesRoot = self.figRoot.add_subplot(1,1,1)
         self.axesRoot.axis('equal')
         self.axesRoot.set_title('Root')
         self.lineRoot, = self.axesRoot.plot(self.app.tRootX , self.app.tRootY , color='red')
         self.canvasRoot = FigureCanvasTkAgg(self.figRoot, master=self.frame)  # A tk.DrawingArea.
         self.canvasRoot.draw()
-        self.canvasRoot.get_tk_widget().grid(column=2, rowspan=5 , row=0, padx=(10,2) , pady=(2,2))
+        self.canvasRoot.get_tk_widget().grid(column=2, rowspan=10 , row=0, padx=(10,2) , pady=(2,2))
         
-        self.figTip = Figure(figsize=(10, 2), dpi=100)
+        self.figTip = Figure(figsize=(10, 3), dpi=100)
         self.axesTip = self.figTip.add_subplot(1,1,1)
         self.axesTip.axis('equal')
         self.axesTip.set_title('Tip')
         self.lineTip, = self.axesTip.plot(self.app.tTipX , self.app.tTipY , color='blue')
         self.canvasTip = FigureCanvasTkAgg(self.figTip, master=self.frame)  # A tk.DrawingArea.
         self.canvasTip.draw()
-        self.canvasTip.get_tk_widget().grid(column=2, rowspan=5 , row=5, padx=(10,2) ,pady=(20,2))
+        self.canvasTip.get_tk_widget().grid(column=2, rowspan=10 , row=10, padx=(10,2) ,pady=(20,2))
 
     def merge(self, list1, list2): 
         merged_list = tuple(zip(list1, list2))  

@@ -33,7 +33,7 @@ class Table:
         tk.Label(self.frame, text="Distance between axes (mm)").grid(column=0, row=r, pady=(1,1) , sticky=W)
         #tk.Entry(self.frame, textvariable=self.app.tableYY , width='5' , validate='focusout',
         #    validatecommand=(reg_tableYY) ).grid(column=1, row=r , padx=1,pady=(1,1))
-        EntryFloat(self.frame, self.app.tableYY , 10 , 1500, self.levelBloc , width='6' ).grid(column=1, row=r , padx=1,pady=(1,1), sticky=W)
+        EntryFloat(self.frame, self.app.tableYY , 10 , 1600, self.levelBloc , width='6' ).grid(column=1, row=r , padx=1,pady=(1,1), sticky=W)
         r += 1
         tk.Label(self.frame, text="Distance between table and").grid(column=0, row=r, pady=(1,1), sticky=W)
         r += 1
@@ -49,11 +49,11 @@ class Table:
         r += 1
         tk.Label(self.frame, text="       Horizontal").grid(column=0, row=r, pady=(1,1), sticky=W)
         #tk.Entry(self.frame, textvariable=self.app.cMaxY , width='5').grid(column=1, row=r , padx=1,pady=(1,1))
-        EntryFloat(self.frame, self.app.cMaxY , 1 , 1000, self.levelBloc , width='6' ).grid(column=1, row=r , padx=1,pady=(1,1), sticky=W)
+        EntryFloat(self.frame, self.app.cMaxY , 1 , 1300, self.levelBloc , width='6' ).grid(column=1, row=r , padx=1,pady=(1,1), sticky=W)
         r += 1
         tk.Label(self.frame, text="       Vertical").grid(column=0, row=r, pady=(1,1), sticky=W)
         #tk.Entry(self.frame, textvariable=self.app.cMaxZ , width='5').grid(column=1, row=r , padx=1,pady=(1,1))
-        EntryFloat(self.frame, self.app.cMaxZ , 1 , 500, self.levelBloc , width='6' ).grid(column=1, row=r , padx=1,pady=(1,1), sticky=W)
+        EntryFloat(self.frame, self.app.cMaxZ , 1 , 1200, self.levelBloc , width='6' ).grid(column=1, row=r , padx=1,pady=(1,1), sticky=W)
         r += 1
         tk.Label(self.frame, text="Max speed (mm/sec)").grid(column=0, row=r, pady=(1,1), sticky=W)
         r += 1
