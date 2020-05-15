@@ -26,6 +26,8 @@ from fil_chaud_grbl import Grbl
 """ to do
 - afficher les trailing et leading position du bloc jusqu'à l'axe YG et YD
 - afficher les parcours des axes
+- calculer la chauffe à appliquer pendant la guillotine (actuellement fixé à 50%)
+- bug dans la guillotine (check sur backward au lieu de back, pourquoi 2 tests)
 """
 """
 oRoot and oTip = original profil (displayed on tab profil)
@@ -42,7 +44,7 @@ class App:
         self.initDone = False
         self.initGuiData()
         self.master = master
-        self.master.title("Hot wire cutter (version 0.1.a)")
+        self.master.title("Hot wire cutter (version 0.1.b)")
         self.nb = ttk.Notebook(self.master)
         self.nb.enable_traversal()    
         self.queueTkSendMsg = queue.Queue()
@@ -76,7 +78,7 @@ class App:
     
     def execCmd(self , queue , rien):
         """
-        thread in order to execute task outside the main tktread (when they can take to much time e.g.)
+        thread in order to execute task outside the main tkhtread (when they can take to much time e.g.)
         get Cmd via a queue queueTkSendMsg
         used e.g. when a button is clicked in Thinker
         not sure it is really requested for this application

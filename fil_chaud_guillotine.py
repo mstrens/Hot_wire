@@ -166,7 +166,7 @@ class Guillotine:
         if self.app.gApplyCalculatedHeating.get():
             self.gHeatingBox['validate']='none' #disable focusout while updating
             self.app.gHeating.set(self.calculateHeating(self.app.gCuttingSpeed.get()) )
-            self.gHeatingBox['validate']='focusout' #disable focusout while updating
+            self.gHeatingBox['validate']='focusout' #enable focusout after updating
             self.gHeatingBox['state']= 'disabled'
         else:
             self.gHeatingBox['state']= 'normal'    
@@ -199,41 +199,41 @@ class Guillotine:
         return move
     
     def goForward(self):
-        command = ["G21" , "G91"]  # mm incremental
+        command = ["G21" , "G91", "G94"]  # mm incremental normal feed rate
         if self.app.gCuttingWhile.get() == "Forward" or self.app.gCuttingWhile.get() == "Both":
             command.append("M3")
-            command.append("S50" )
+            command.append("S" + str( int(self.app.gHeating.get()) ) )
             command.append( "G04P" + str(self.app.tPreHeat.get() ) ) 
             command.append("F" +str(60 * self.app.gCuttingSpeed.get() ))
             command.append( "G01")
         else:
             command.append( "G00")     
         command.append( self.calculateMove(1))
-        if self.app.gCuttingWhile.get() == "Backward" or self.app.gCuttingWhile.get() == "Both":
+        if self.app.gCuttingWhile.get() == "Forward" or self.app.gCuttingWhile.get() == "Both":
             command.append( "G04P" + str(self.app.tPostHeat.get() ) ) 
             command.append("M5")
-        #print("\n".join(command))
+        print("\n".join(command))
         self.app.tGrbl.stream("\n".join(command))
         
     def goBackward(self):
-        command = ["G21" , "G91"]  # mm incremental
-        if self.app.gCuttingWhile.get() == "Backward" or self.app.gCuttingWhile.get() == "Both":
+        command = ["G21" , "G91", "G94"]  # mm incremental normal feed rate
+        if self.app.gCuttingWhile.get() == "Back" or self.app.gCuttingWhile.get() == "Both":
             command.append("M3")
-            command.append("S50")
+            command.append("S" + str( int(self.app.gHeating.get()) ) )
             command.append( "G04P" + str(self.app.tPreHeat.get() ) ) 
             command.append("F"+str(60 * self.app.gCuttingSpeed.get() ))
             command.append( "G01")
         else:
             command.append( "G00")     
         command.append( self.calculateMove(-1))
-        if self.app.gCuttingWhile.get() == "Backward" or self.app.gCuttingWhile.get() == "Both":
+        if self.app.gCuttingWhile.get() == "Back" or self.app.gCuttingWhile.get() == "Both":
             command.append( "G04P" + str(self.app.tPostHeat.get() ) ) 
             command.append("M5")
-        #print("\n".join(command))
+        print("\n".join(command))
         self.app.tGrbl.stream("\n".join(command))
 
     def startHeat(self):
-        command = ["S50" , "M3"] 
+        command = ["S" + str( int(self.app.gHeating.get()) )  , "M3"] 
         self.app.tGrbl.stream("\n".join(command))
 
     def stopHeat(self):
@@ -253,7 +253,7 @@ class Guillotine:
         self.move("Back")
 
     def move(self, dir):
-        command = ["G21" , "G91"]  # mm incremental
+        command = ["G21" , "G91" , "G94"]  # mm incremental normal feed rate
         axis = self.app.gCodeLetters.get()
         axisIdx = 0
         dirPos = 1
@@ -277,6 +277,7 @@ class Guillotine:
 
     def connect(self):
         self.queueCmd.put("Connect") 
+    
     
     def disconnect(self):
         self.queueCmd.put("Disconnect")
