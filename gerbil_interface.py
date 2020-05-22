@@ -62,7 +62,7 @@ class Interface:
         Used to send one line received on the UART
         """
         self.queue = queue
-        self.logger.info("{}: connecting to {} with baudrate {:d}".format(self.name, self.path, self.baud) )
+        self.logger.info("{}: connecting to {} with baudrate {}".format(self.name, self.path, self.baud) )
         try:
             self.serialport = serial.Serial(self.path, self.baud, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=1, writeTimeout=0)
             self.serialport.flushInput()

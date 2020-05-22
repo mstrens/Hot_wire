@@ -42,7 +42,7 @@ class App:
         self.initDone = False
         self.initGuiData()
         self.master = master
-        self.master.title("Hot wire cutter (version 0.1.c)")
+        self.master.title("Hot wire cutter (version 0.1.d)")
         self.nb = ttk.Notebook(self.master)
         self.nb.enable_traversal()    
         self.queueTkSendMsg = queue.Queue()
