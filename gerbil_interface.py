@@ -62,10 +62,9 @@ class Interface:
         Used to send one line received on the UART
         """
         self.queue = queue
-        #self.logger.info("%s: connecting to %s with baudrate %i", self.name, self.path, self.baud)
+        self.logger.info("{}: connecting to {} with baudrate {:d}".format(self.name, self.path, self.baud) )
         try:
-            self.serialport = serial.Serial(self.path, self.baud, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
-                 bytesize=serial.EIGHTBITS, timeout=1, writeTimeout=0)
+            self.serialport = serial.Serial(self.path, self.baud, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=1, writeTimeout=0)
             self.serialport.flushInput()
             self.serialport.flushOutput()
             self._do_receive = True
@@ -74,7 +73,7 @@ class Interface:
             self.serial_thread.start()
             return True
         except:
-            self.logger.info("Error 1 Serial %s not open", self.path) #added by mstrens
+            self.logger.info("Error 1 Serial {} not open".format(self.path))  #added by mstrens
             return False
 
     def stop(self):
@@ -151,7 +150,7 @@ class Interface:
         try:
             asci = data.decode("ascii")
         except UnicodeDecodeError:
-            self.logger.info("%s: Received a non-ascii byte. Probably junk. Dropping it.", self.name)
+            self.logger.info("{}: Received a non-ascii byte. Probably junk. Dropping it.".format( self.name) )
             asci = ""
         for i in range(0, len(asci)):
             char = asci[i]
@@ -159,4 +158,5 @@ class Interface:
             # not all received lines are complete (end with \n)
             if char == "\n":
                 self.queue.put(self._buf_receive.strip())
+                #print(self._buf_receive)  # to test by mstrens
                 self._buf_receive = ""

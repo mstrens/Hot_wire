@@ -37,7 +37,7 @@ In order to run the application on other operating system, you have to install:
 - configparser
 - shapely
 - scipy
-- serial
+- pyserial
 - time  (normally already included in python)
 - threading (normally already included in python)
 - atexit (normally already included in python)

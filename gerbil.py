@@ -181,7 +181,10 @@ class Gerbil:
         # Working coordinates are relative to the currently selected
         # coordinate system.
         self.cwpos = (0, 0, 0, 0)
-        
+
+        ## sace the work coordonnee offset        
+        self.wcoor = (0, 0, 0, 0)
+
         ## @var gps
         # Get list of 12 elements containing the 12 Gcode Parser State
         # variables of Grbl which are obtained by sending the raw 
@@ -454,7 +457,7 @@ class Gerbil:
         """
         Immediately sends `Ctrl-X` to Grbl.
         """
-        print("write x18")
+        #print("write x18")
         self._iface.write("\x18") # Ctrl-X
         #self.update_preprocessor_position()
                 
@@ -975,7 +978,7 @@ class Gerbil:
                 elif "error" in line:
                     self.logger.debug("ERROR")
                     self._error = True
-                    self.logger.debug("%s: _rx_buffer_backlog at time of error: %s", self.name,  self._rx_buffer_backlog)
+                    self.logger.debug("{}: _rx_buffer_backlog at time of error: {}".format( self.name,  self._rx_buffer_backlog) )
                     if len(self._rx_buffer_backlog) > 0:
                         problem_command = self._rx_buffer_backlog[0]
                         problem_line = self._rx_buffer_backlog_line_number[0]
@@ -1061,42 +1064,79 @@ class Gerbil:
             self.logger.error("{}: Could not parse gcode parser report: '{}'".format(self.name, line))
     """    
     def _update_state(self, line):
-        m = re.match("<(.*?)\|MPos:(.*?)\|FS:(.*?)>", line)
-        if m:
-            self.cmode = m.group(1)
-            mpos_parts = m.group(2).split(",")
-            fs_parts = m.group(3).split("|")
-            fs_parts = fs_parts[0].split(",")
-            #wpos_parts = m.group(3).split(",")
-            self.cmpos = (float(mpos_parts[0]), float(mpos_parts[1]), float(mpos_parts[2]), float(mpos_parts[3]), float(fs_parts[0]) , float(fs_parts[1]) )
-            #self.cwpos = (float(wpos_parts[0]), float(wpos_parts[1]), float(wpos_parts[2]))
-
-            if (self.cmode != self._last_cmode or
-                self.cmpos != self._last_cmpos ):
-                    self._callback("on_stateupdate", self.cmode, self.cmpos )
-                    #if self.streaming_complete == True and self.cmode == "Idle":
-                    #    self.update_preprocessor_position()
-                    #    self.gcode_parser_state_requested = True
+        # split by | from first pos (to avoid <)
+        fields = line[1:-1].split("|")
+        self.cmode = fields[0]
+        cmpos = None
+        cwpos = None
+        for field in fields[1:]:
+            word =  re.compile(r"[:,]").split(field)
+            #print("word=",word)
+            if word[0] == "MPos":
+                try:
+                    cmpos = (float(word[1]), float(word[2]), float(word[3]), float(word[4]) )        
+                except (ValueError,IndexError):
+                    print("Garbage over MPos received in line ",line)
+                    return
+            elif word[0] == "WPos":
+                try:
+                    cwpos = (float(word[1]), float(word[2]), float(word[3]), float(word[4]) )       
+                except (ValueError,IndexError):
+                    print("Garbage over WPos received in line ", line)
+                    return
+            elif word[0] == "FS":
+                try:
+                    feed = float(word[1])
+                    spindle = float(word[2])
+                except (ValueError,IndexError):
+                    print("Garbage over FS received in line ",line)
+                    return
+            elif word[0] == "WCO":
+                try:
+                    self.wcoor = (float(word[1]), float(word[2]), float(word[3]), float(word[4]) )
+                except (ValueError,IndexError):
+                    print("Garbage over WCO received in line ",line)
+                    return
+        if cmpos != None:
+            cwpos = (cmpos[0]- self.wcoor[0],cmpos[1]- self.wcoor[1], cmpos[2]- self.wcoor[2],cmpos[3]- self.wcoor[3] )
+        if cwpos != None:
+            cmpos = (cwpos[0]+ self.wcoor[0],cwpos[1]+ self.wcoor[1], cwpos[2]+ self.wcoor[2],cwpos[3]+ self.wcoor[3] )     	
+        cmpos = list(cmpos)
+        cmpos.append(feed)
+        cmpos.append(spindle)
+        self.cmpos = tuple(cmpos) 
                 
-
-            if (self.cmpos != self._last_cmpos):
-                if self.is_standstill == True:
-                    self._standstill_watchdog_increment = 0
-                    self.is_standstill = False
-                    #mstrens self._callback("on_movement")
-            else:
-                # no change in positions
-                self._standstill_watchdog_increment += 1
-                
-            
-            if self.is_standstill == False and self._standstill_watchdog_increment > 10:
-                # machine is not moving
-                self.is_standstill = True
-                #mstrens self._callback("on_standstill")
-                
-            self._last_cmode = self.cmode
-            self._last_cmpos = self.cmpos
-            self._last_cwpos = self.cwpos
+        #    m = re.match("<(.*?)\|MPos:(.*?)\|FS:(.*?)(\|WCO:(.*?))?(\|Ov:(.*?))?>", line)
+        #    # group1 = status, group2 = 4x Mpos, group3 = 2xFS, group5 = 4xWCO, group7= 3xOv 
+        #    if m:
+        #        self.cmode = m.group(1)
+        #        mpos_parts = m.group(2).split(",")
+        #        fs_parts = m.group(3).split("|")
+        #        fs_parts = fs_parts[0].split(",")
+        #        #wpos_parts = m.group(3).split(",")
+        #        self.cmpos = (float(mpos_parts[0]), float(mpos_parts[1]), float(mpos_parts[2]), float(mpos_parts[3]), float(fs_parts[0]) , float(fs_parts[1]) )
+        #        #self.cwpos = (float(wpos_parts[0]), float(wpos_parts[1]), float(wpos_parts[2]))
+        if (self.cmode != self._last_cmode or
+            self.cmpos != self._last_cmpos ):
+                self._callback("on_stateupdate", self.cmode, self.cmpos )
+                #if self.streaming_complete == True and self.cmode == "Idle":
+                #    self.update_preprocessor_position()
+                #    self.gcode_parser_state_requested = True
+        if (self.cmpos != self._last_cmpos):
+            if self.is_standstill == True:
+                self._standstill_watchdog_increment = 0
+                self.is_standstill = False
+                #mstrens self._callback("on_movement")
+        else:
+            # no change in positions
+            self._standstill_watchdog_increment += 1    
+        if self.is_standstill == False and self._standstill_watchdog_increment > 10:
+            # machine is not moving
+            self.is_standstill = True
+            #mstrens self._callback("on_standstill")        
+        self._last_cmode = self.cmode
+        self._last_cmpos = self.cmpos
+        self._last_cwpos = self.cwpos
             
         
     def _load_line_into_buffer(self, line):

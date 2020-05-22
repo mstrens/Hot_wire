@@ -26,8 +26,6 @@ from fil_chaud_grbl import Grbl
 """ to do
 - afficher les trailing et leading position du bloc jusqu'à l'axe YG et YD
 - afficher les parcours des axes
-- calculer la chauffe à appliquer pendant la guillotine (actuellement fixé à 50%)
-- bug dans la guillotine (check sur backward au lieu de back, pourquoi 2 tests)
 """
 """
 oRoot and oTip = original profil (displayed on tab profil)
@@ -44,7 +42,7 @@ class App:
         self.initDone = False
         self.initGuiData()
         self.master = master
-        self.master.title("Hot wire cutter (version 0.1.b)")
+        self.master.title("Hot wire cutter (version 0.1.c)")
         self.nb = ttk.Notebook(self.master)
         self.nb.enable_traversal()    
         self.queueTkSendMsg = queue.Queue()
@@ -845,9 +843,9 @@ def main(): #run mainloop
     root = tk.Tk()
     app = App(root)
     fil_chaud_config.initMonApp(app)
-    port_controller = threading.Thread(target=check_presence)
-    port_controller.setDaemon(True)
-    port_controller.start()
+    #port_controller = threading.Thread(target=check_presence)
+    #port_controller.setDaemon(True)
+    #port_controller.start()
     
     
     root.mainloop()
