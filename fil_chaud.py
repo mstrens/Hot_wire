@@ -843,9 +843,9 @@ def main(): #run mainloop
     root = tk.Tk()
     app = App(root)
     fil_chaud_config.initMonApp(app)
-    #port_controller = threading.Thread(target=check_presence)
-    #port_controller.setDaemon(True)
-    #port_controller.start()
+    port_controller = threading.Thread(target=check_presence)
+    port_controller.setDaemon(True)
+    port_controller.start()
     
     
     root.mainloop()
