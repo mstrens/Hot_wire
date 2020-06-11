@@ -686,6 +686,7 @@ class App:
                     self.tGuillotine.updateGuillotineHeating()
 
             if level <= 30: # calculate Cut based on Material
+                self.mSpeedHalf.set(self.mSpeedHigh.get() / 2) #half speed = high speed /2
                 if ( len(self.pRootX) > 0 ) and (len(self.pTipX) >0):
                     pass
                     self.tCut.calculateRedraw()    

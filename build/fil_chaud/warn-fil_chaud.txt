@@ -141,7 +141,7 @@ runtime module named six.moves - imported by cycler (top-level), dateutil.tz.tz 
 missing module named six.moves.range - imported by six.moves (top-level), dateutil.rrule (top-level)
 missing module named six.moves.zip - imported by six.moves (top-level), cycler (top-level)
 missing module named dateutil.tz.tzfile - imported by dateutil.tz (top-level), dateutil.zoneinfo (top-level)
-missing module named olefile - imported by PIL.FpxImagePlugin (top-level), PIL.MicImagePlugin (top-level)
+missing module named olefile - imported by PIL.MicImagePlugin (top-level), PIL.FpxImagePlugin (top-level)
 missing module named 'PySide2.QtCore' - imported by PIL.ImageQt (conditional, optional)
 missing module named PySide2 - imported by PIL.ImageQt (conditional, optional)
 missing module named 'PyQt5.QtCore' - imported by PIL.ImageQt (conditional, optional)

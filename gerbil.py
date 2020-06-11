@@ -391,7 +391,7 @@ class Gerbil:
         self._loghandler.callback = self._callback
         
       
-    def cnect(self, path=None, baudrate=115200):
+    def cnect(self, path=None, baudrate="115200"):
         """
         Connect to the RS232 port of the Grbl controller.
         
