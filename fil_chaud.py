@@ -34,15 +34,18 @@ pRoot and pTip = positioned profil (taking into account coord, transformation AN
 offsetRoot and offsetTip = offset for radiance on pRoot and pTip (but with duplicates)
 oSimR and oSimT = simplified offsetRoot and offsetTip
 GX, GY, DX and DY = projection on the axes (only traject inside the bloc)
+synchronisation points codification (4 = synchro; 0 = no synchro, 10 = synchro and no radiance)
 
 """
+
+
 
 class App:
     def __init__(self, master):
         self.initDone = False
         self.initGuiData()
         self.master = master
-        self.master.title("Hot wire cutter (version 0.1.d)")
+        self.master.title("Hot wire cutter (version 0.1.e)")
         self.nb = ttk.Notebook(self.master)
         self.nb.enable_traversal()    
         self.queueTkSendMsg = queue.Queue()
@@ -119,11 +122,18 @@ class App:
             pass
         self.master.after(200, self.periodicCall)
 
+    #def calback(self, a , b, c):
+    #    print("do something")
+
     def initGuiData(self):
         #not saved with config
         self.validateAllOn = False
         self.warningMsg = StringVar(value="")
         self.cutMsg = StringVar(value="")
+        self.limMinX = DoubleVar(value='0.0')        # min value to plot on X axis (not saved in .ini)
+        self.limMinY = DoubleVar(value='0.0')        # min value to plot on Y axis (not saved in .ini)
+        self.zoom = StringVar(value="1X")
+        #self.zoom.trace('w', self.calback)
         self.configUploadFileName = None
         self.tableUploadFileName = None
         self.tableSaveFileName = None
@@ -256,7 +266,7 @@ class App:
         self.tPostHeat = DoubleVar(value='5.0')   # delay between Move and Heat
         
         #cut
-        self.vCut = DoubleVar(value='5.0')        # max speed for cutting (on root or tip depending the longest
+        self.vCut = DoubleVar(value='2.0')        # max speed for cutting (on root or tip depending the longest)
         self.gCodeStart1 = StringVar(value="")
         self.gCodeStart2 = StringVar(value="")
         self.gCodeStart3 = StringVar(value="")
@@ -675,21 +685,28 @@ class App:
             if level <= 20:    
                     pass
                     #create pRoot and pTipX based on tRoot and tTip and based on Table, bloc and margin 
-                    self.validatePart()         
+                    self.validatePart() 
+                    #print("validatePart is done")        
                     self.calculatePositions()
+                    #print("calculatepositions is done")
                     # draw the bloc ()
                     self.tBloc.updatePlotBloc()
+                    #print("updatePlotBloc is done")
                     #draw the margins
                     self.tMargin.updatePlotMargin()
+                    #print("updatePlotMargin is done")
 
                     #update heating for guillotine
                     self.tGuillotine.updateGuillotineHeating()
+                    #print("updateGuillotineHeating is done")
 
             if level <= 30: # calculate Cut based on Material
                 self.mSpeedHalf.set(self.mSpeedHigh.get() / 2) #half speed = high speed /2
                 if ( len(self.pRootX) > 0 ) and (len(self.pTipX) >0):
                     pass
-                    self.tCut.calculateRedraw()    
+                    #print("begin calculateRedraw")
+                    self.tCut.calculateRedraw()
+                    #print("end calculateRedraw")    
             warningMsg = ""
             if ( len(self.oRootX) <= 1 ) and ( len(self.oTipX) <= 1 ):
                 warningMsg = "Root and Tip profiles missing"
@@ -700,9 +717,10 @@ class App:
             elif (self.tRootS.count(4)+self.tRootS.count(10) ) != (self.tTipS.count(4)+self.tTipS.count(10) ):
                 warningMsg = "Transformed root and tip profiles must have the same number of synchro points"
             self.warningMsg.set(warningMsg)
-            
+            #next 2 lines are normally as comment
             #except:
-            #    print("error during validation")    
+            
+                
         return True
 
     def calculatePositions(self):

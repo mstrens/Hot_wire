@@ -44,43 +44,100 @@ class Cut:
         r += 1
         tk.Label(self.frame, textvariable=self.app.cutMsg,  height= 10).grid(column=0, columnspan=2, row=r, pady=(1,1), padx=(10,1) , sticky=NW)
 
-        self.figRoot = Figure(figsize=(10, 3), dpi=100)
+        r = 30
+        tk.Label(self.frame, text="   Display starts at ").grid(column=0, row=r, pady=(1,1), sticky=E)
+        r += 1
+        tk.Label(self.frame, text="X (mm)").grid(column=0, row=r, pady=(1,1), sticky=E)
+        EntryFloat(self.frame, self.app.limMinX, 0, 1500, self.levelCut , width='6').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W )
+        r += 1
+        tk.Label(self.frame, text="Y (mm)").grid(column=0, row=r, pady=(1,1), sticky=E)
+        EntryFloat(self.frame, self.app.limMinY, 0, 500, self.levelCut , width='6').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W )
+        r += 1
+        tk.Label(self.frame, text="Zoom factor").grid(column=0, row=r, pady=(1,1), sticky=E)
+        ttk.Combobox(self.frame,textvariable=self.app.zoom , values=["1X" , "2X","5X" , "10X","20X" , "50" , "100X"],
+            state="readonly", width='4').grid(column=1, row=r , padx=1,pady=(1,1), sticky=E)
+        self.app.zoom.trace('w', self.calculateRedraw2 )
+        
+        self.dotX = 10 # define the size and ratio of the figure
+        self.dotY = 3   
+        self.figRoot = Figure(figsize=(self.dotX, self.dotY), dpi=100)
         self.axesRoot = self.figRoot.add_subplot(1,1,1)
+        self.axesRoot.spines['top'].set_visible(False) #avoid top frame
+        self.axesRoot.spines['right'].set_visible(False)
         self.axesRoot.autoscale(enable=False)
-        self.axesRoot.set_xlim(0, 1300)
-        self.axesRoot.set_ybound(0, 400)
-        self.axesRoot.set_title('Root')
-        self.lineRoot1, = self.axesRoot.plot( [], [] ) 
-        self.lineRoot2, = self.axesRoot.plot( [], [] )
+        #self.axesRoot.set_xlim(0, 100)
+        #self.axesRoot.set_ylim(0, 30)
+        #self.axesRoot.set_title('Root')
+        self.lineWireRoot1, = self.axesRoot.plot( [], [], 'k:' ,color= 'black' ) 
+        self.lineProfileRoot2, = self.axesRoot.plot( [], [], color='red' )
+        self.lineBlocRoot, = self.axesRoot.plot( [], [], color='black' )
+        self.figRoot.legend((self.lineProfileRoot2, self.lineWireRoot1, self.lineBlocRoot), ('Root profile' , 'Wire', 'Bloc'), 'upper right')
+        self.figRoot.set_tight_layout(True)
         self.canvasRoot = FigureCanvasTkAgg(self.figRoot, master=self.frame)  # A tk.DrawingArea.
         self.canvasRoot.draw()
-        self.canvasRoot.get_tk_widget().grid(column=2, row=0, rowspan=20, padx=10 , pady=(10,2))
+        self.canvasRoot.get_tk_widget().grid(column=2, row=0, rowspan=22, padx=10 , pady=(2,2))
         
-        self.figTip = Figure(figsize=(10, 3), dpi=100)
+        self.figTip = Figure(figsize=(self.dotX, self.dotY), dpi=100)
         self.axesTip = self.figTip.add_subplot(1,1,1)
+        self.axesTip.spines['top'].set_visible(False) #avoid top frame
+        self.axesTip.spines['right'].set_visible(False)
         self.axesTip.autoscale(enable=False)
-        self.axesTip.set_xlim(0, 1300)
-        self.axesTip.set_ybound(0, 400)
-        self.axesTip.set_title('Tip')
-        self.lineTip1, = self.axesTip.plot( [], [] ) 
-        self.lineTip2, = self.axesTip.plot( [], [] )
+        self.lineWireTip1, = self.axesTip.plot( [], [] , 'k:' , color='black') 
+        self.lineProfileTip2, = self.axesTip.plot( [], [] , color='blue')
+        self.lineBlocTip, = self.axesTip.plot( [], [], color='black' )
+        self.figTip.legend((self.lineProfileTip2, self.lineWireTip1, self.lineBlocTip), ('Tip profile' , 'Wire', 'Bloc'), 'upper right')
+        self.figTip.set_tight_layout(True)
         self.canvasTip = FigureCanvasTkAgg(self.figTip, master=self.frame)  # A tk.DrawingArea.
         self.canvasTip.draw()
-        self.canvasTip.get_tk_widget().grid(column=2, row=20, rowspan=20, padx=10 , pady=(10,2))
-        
+        self.canvasTip.get_tk_widget().grid(column=2, row=22, rowspan=22, padx=10 , pady=(2,2))
+
+    def calback(self, a , b, c):
+        self.calculateRedraw()
+
+
     def updateOProfil(self):  #update plotting the bloc (2 canvas: Top and Back)
-        self.lineRoot1.set_xdata(self.oSimRX)
-        self.lineRoot1.set_ydata(self.oSimRY)
-        self.lineRoot2.set_xdata(self.app.pRootX)
-        self.lineRoot2.set_ydata(self.app.pRootY)
+        blocRootX = [self.app.blocToTableTrailingRoot.get(), self.app.blocToTableLeadingRoot.get(), self.app.blocToTableLeadingRoot.get() ,
+            self.app.blocToTableTrailingRoot.get(), self.app.blocToTableTrailingRoot.get() ]
+        blocTipX = [self.app.blocToTableTrailingTip.get(), self.app.blocToTableLeadingTip.get(), self.app.blocToTableLeadingTip.get() ,
+            self.app.blocToTableTrailingTip.get(), self.app.blocToTableTrailingTip.get()]
+        hOffset = self.app.hOffset.get()
+        blocHZ =  self.app.blocHZ.get()
+        blocRootY = [hOffset , hOffset, hOffset + blocHZ, hOffset + blocHZ, hOffset]
+        blocTipY = blocRootY
+        
+        maxX = np.amax(np.concatenate((self.oSimRX, self.app.pRootX , self.oSimTX ,self.app.pTipX , blocRootX , blocTipX ) ) ) 
+        maxY = np.amax(np.concatenate((self.oSimRY, self.app.pRootY , self.oSimTY ,self.app.pTipY , blocRootY , blocTipY ) ) ) + 1
+        limMinX = self.app.limMinX.get()    
+        limMinY = self.app.limMinY.get()
+        zoomString = self.app.zoom.get() 
+        zoom = float(zoomString[0:len(zoomString )-1])
+        #print("zoom=", zoom)
+        if ( maxY / maxX ) < ( self.dotY / self.dotX ):
+            limMaxX = limMinX + ( maxX / zoom )
+            limMaxY = limMinY + ( maxX / zoom * self.dotY / self.dotX)
+        else:
+            limMaxY = limMinY + (maxY / zoom)
+            limMaxX = limMinX + (maxY / zoom * self.dotX / self.dotY)   
+        self.axesRoot.set_xlim(limMinX, limMaxX)
+        self.axesRoot.set_ylim(limMinY, limMaxY)
+        self.lineWireRoot1.set_xdata(self.oSimRX)
+        self.lineWireRoot1.set_ydata(self.oSimRY)
+        self.lineProfileRoot2.set_xdata(self.app.pRootX)
+        self.lineProfileRoot2.set_ydata(self.app.pRootY)
+        self.lineBlocRoot.set_xdata(blocRootX)
+        self.lineBlocRoot.set_ydata(blocRootY)
         self.canvasRoot.draw_idle() 
 
-        self.lineTip1.set_xdata(self.oSimTX)
-        self.lineTip1.set_ydata(self.oSimTY)
-        self.lineTip2.set_xdata(self.app.pTipX)
-        self.lineTip2.set_ydata(self.app.pTipY)
+        self.axesTip.set_xlim(limMinX, limMaxX)
+        self.axesTip.set_ylim(limMinY, limMaxY)
+        self.lineWireTip1.set_xdata(self.oSimTX)
+        self.lineWireTip1.set_ydata(self.oSimTY)
+        self.lineProfileTip2.set_xdata(self.app.pTipX)
+        self.lineProfileTip2.set_ydata(self.app.pTipY)
+        self.lineBlocTip.set_xdata(blocTipX)
+        self.lineBlocTip.set_ydata(blocTipY)
         self.canvasTip.draw_idle() 
-        
+
 
     def cut(self):
         self.app.tGrbl.stream(self.gcode)
@@ -98,6 +155,11 @@ class Cut:
     def calculateRedraw(self):    
         self.calculate()
         self.updateOProfil()
+    
+    def calculateRedraw2(self , a, b, c):
+           self.calculateRedraw()
+
+
 
     def calculate(self):
         #it start from PRoot and pTip (= profile taking care of bloc and margin)
@@ -111,6 +173,8 @@ class Cut:
         if (len(self.app.tRootX) > 0) and (len(self.app.tTipX) >0 ): # and (len(self.app.tRootX) == len(self.app.tTipX)):
             # create eRoot and eTip and add entry and exit point in the bloc (before applying heating offset)      
             #print("pRootX pTipX", self.app.pRootX , self.app.pTipX)
+            #print("pRootY pTipY", self.app.pRootY , self.app.pTipY)
+            #print("pRootS pTipS", self.app.pRootS , self.app.pTipS)
             eRootX = self.app.pRootX.tolist()
             eRootY = self.app.pRootY.tolist()
             eRootS = list(self.app.pRootS)
@@ -125,10 +189,10 @@ class Cut:
             eRootY.append(self.app.pRootY[-1])
             eTipX.append(self.app.blocToTableTrailingTip.get())
             eTipY.append(self.app.pTipY[-1])
-            eRootS.insert(0,10) # add a Synchro and no radiance point
-            eTipS.insert(0,10) # add a Synchro and no radiance point
-            eRootS[-1] = 10 # mark the last point as Synchro and no radiance point
-            eTipS[-1] = 10 # mark the last point as Synchro and no radiance point
+            eRootS.insert(0,4) # add a Synchro (with radiance) point
+            eTipS.insert(0,4) # add a Synchro (with radiance) point
+            eRootS[-1] = 4 # mark the last point as Synchro (with radiance) point
+            eTipS[-1] = 4 # mark the last point as Synchro (with radiance) point
             eRootS.append(4) #add a last point as Synchro
             eTipS.append(4) #add a last point as Synchro
             #print("Root=", list(zip(eRootX, eRootY, eRootS)))
@@ -139,14 +203,15 @@ class Cut:
             #build list of index of pt of synchro and length of sections between synchro
             eRootI , eRootL = lengthSection( eRootS , rootL)
             eTipI , eTipL = lengthSection( eTipS , tipL)
-            #print("index and length of root", eRootS , rootL ,  eRootI , eRootL)        
-            
+            #print("Root: Synchro code & Index, length segments & sections", eRootS ,  eRootI, rootL  , eRootL)        
+            #print("Tip: Synchro code & Index, length segments & sections", eTipS , eTipI , tipL ,   eTipL)        
             #compare les longueurs pour trouver le coté le plus long
             compLength = compareLength( eRootL, eTipL)
             #print("compare length", compLength)
             #Calcule la radiance de chaque côté ; met 0 si 
             rRoot , rTip = self.calculate2Radiance(compLength, self.app.vCut.get())
-            #print("radiance root, tip", rRoot , rTip)
+            #print("radiance root", rRoot )
+            #print("radiance tip",  rTip)
             #create eRootR and eTipR with the radiance to fit the same nbr of item as exxxS
             eRootR =  self.createRadiance(eRootS , rRoot)
             #print('full radiance root', eRootR)
@@ -154,13 +219,15 @@ class Cut:
             #print('full radiance tip', eTipR)
             # calculate offset on each side; create one new point at each synchronisation to take care of different radiance offsets
             self.offsetRootX , self.offsetRootY ,self.offsetRootS = self.calculateOffset(eRootX, eRootY, eRootR ,eRootS)
+            
             #print("offset root", list(zip( self.offsetRootX , self.offsetRootY ,self.offsetRootS)))
             self.offsetTipX , self.offsetTipY , self.offsetTipS = self.calculateOffset(eTipX, eTipY, eTipR, eTipS)
+            #print("offset tip", list(zip( self.offsetTipX , self.offsetTipY ,self.offsetTipS)))
+            
             #print("len R T",len(self.offsetRootX) , len(self.offsetTipX) )
             # adjust points in order to have the same number of points on each section
             self.syncRX , self.syncRY , self.syncTX, self.syncTY = self.synchrAllSections(
                 self.offsetRootX , self.offsetRootY ,self.offsetRootS , self.offsetTipX , self.offsetTipY , self.offsetTipS)
-
             """
             print("eRoot X Y", eRootX, eRootY)
             print("eTip X Y", eTipX, eTipY)
@@ -200,8 +267,8 @@ class Cut:
             # passe tous les points
             # revient à la verticale de l'origine puis à l'origine
             # attend 5 sec puis éteint la chauffe puis éteint les moteurs
-            
             self.gcode = self.generateGcode(self.GX , self.DX , self.GY, self.DY, self.speed, self.feedRate)
+            
 
             
             
@@ -427,11 +494,12 @@ class Cut:
                 
 
     def calculateOffset( self , x, y , r, s ):
-        #create an offset for curve x y at a distance r (which varies)
+        #create an offset for curve x y at a distance r (which varies) taking care of synchronisations
         # for each synchronisation point, create 2 offset points instead of 1 
         #x ,y, r (radiance) , s (synchro) have the same length
         # return new x y s 
         # pour 3 points successifs p1-p2-p3 avec r1-r2, calcule les pt d'intersection des 2 offsets
+        #print("offset for x, y, r,s", x ,y , r ,s)
         ox=[]
         oy=[]
         os=[]
@@ -444,15 +512,23 @@ class Cut:
             oy.append(oyi)
             os.append(s[0])
             while i < (imax-1):
-                oxi, oyi = offset2Segment(x[i] , x[i+1] ,x[i+2], y[i] ,y[i+1] ,y[i+2] ,r[i] )
-                ox.append(oxi)
-                oy.append(oyi)
-                os.append(s[i+1])
-                if s[i+1] > 0:
-                    oxi, oyi = offset2Segment(x[i] , x[i+1] ,x[i+2], y[i] ,y[i+1] ,y[i+2] ,r[i+1] )
+                if s[i+1] == 0: #if it not a syncho, then offset is the same on both segements and we just take the intersection of the 2 offsets
+                    oxi, oyi = offset2Segment(x[i] , x[i+1] ,x[i+2], y[i] ,y[i+1] ,y[i+2] ,r[i] )
                     ox.append(oxi)
                     oy.append(oyi)
                     os.append(s[i+1])
+                else:
+                    # for a synchro point, whe calculate 2 intersects (one for first offset and one for second offset)
+                    # and we add each of them (so we add a point)
+                        #print("offset2Segments" , x[i] , x[i+1] ,x[i+2], y[i] ,y[i+1] ,y[i+2] ,r[i])
+                        oxi, oyi = offset2Segment(x[i] , x[i+1] ,x[i+2], y[i] ,y[i+1] ,y[i+2] ,r[i] )
+                        ox.append(oxi)
+                        oy.append(oyi)
+                        os.append(s[i+1])
+                        oxi, oyi = offset2Segment(x[i] , x[i+1] ,x[i+2], y[i] ,y[i+1] ,y[i+2] ,r[i+1] )
+                        ox.append(oxi)
+                        oy.append(oyi)
+                        os.append(s[i+1])
                 i += 1
             oxi , oxj, oyi, oyj = offset1Segment(x[i], x[i+1] , y[i], y[i+1] , r[i])
             ox.append(oxj)
@@ -461,7 +537,9 @@ class Cut:
         return ox ,oy, os    
 
     def calculate2Radiance( self,  compLength , speedMax):    
+        #print("in calculate2Radaiance, speedMax =" , speedMax)
         oMin = self.radiance(speedMax)
+        #print("oMin =", oMin )
         imax = len(compLength)
         rR = [] #radiance at root
         rT = [] #radiance at tip
@@ -470,6 +548,8 @@ class Cut:
             while i < imax:
                 cLi = compLength[i]
                 speedLow = speedMax * cLi
+                #print("speedLow=", speedLow)
+                #print("radiance speedLow" , self.radiance(speedLow) )
                 if cLi >= 0: # root is longer
                     rR.append(oMin)
                     rT.append(self.radiance(speedLow))
@@ -480,6 +560,10 @@ class Cut:
         return rR , rT
     
     def radiance(self , speed):
+        #print("mRadSpHalf=", self.app.mRadSpHalf.get() )
+        #print("mRadSpHigh" , self.app.mRadSpHigh.get() )
+        #print("mSpeedHalf" , self.app.mSpeedHalf.get() )
+        #print("mSpeedHigh" , self.app.mSpeedHigh.get() )
         a = (self.app.mRadSpHalf.get() - self.app.mRadSpHigh.get()) / (self.app.mSpeedHalf.get() - self.app.mSpeedHigh.get())
         return 0.5 * ( ( a * ( speed - self.app.mSpeedHalf.get())) + self.app.mRadSpHalf.get() ) # use only 1/2 of radiance for the offset
 
@@ -549,19 +633,32 @@ class Cut:
         cumulLengthR = np.array(self.cumulLength(rX , rY))
         cumulLengthT = np.array(self.cumulLength(tX , tY))
         totLengthR = cumulLengthR[-1]
-        totLengthT = cumulLengthT[-1] 
-        normLengthR = cumulLengthR / totLengthR
-        normLengthT = cumulLengthT / totLengthT
+        totLengthT = cumulLengthT[-1]
+        if totLengthR == 0:  # this happens when the 2 points are identical
+            normLengthR = cumulLengthR   
+        else:
+            normLengthR = cumulLengthR / totLengthR
+        if totLengthT== 0:
+            normLengthT = cumulLengthT
+        else:
+            normLengthT = cumulLengthT / totLengthT
         mergedLength = np.concatenate([normLengthR , normLengthT]) # concatenate
         mergedLength = np.unique(mergedLength)
-        mergedLength = np.insert(mergedLength , 0 , 0)
-        #print("merged mergedLength=", mergedLength)
-
-        mytck,myu=interpolate.splprep([rX,rY], k=1, s=0)
-        rXnew,rYnew= interpolate.splev(mergedLength, mytck)
-        mytck,myu=interpolate.splprep([tX,tY], k=1, s=0)
-        tXnew,tYnew= interpolate.splev(mergedLength, mytck)
-        #print("one section result" , rXnew , rYnew , tXnew , tYnew)
+        if mergedLength[0] > 0: #Add a point at zero except if it already exists (when a totalLength = 0)
+            mergedLength = np.insert(mergedLength , 0 , 0)
+        if totLengthR == 0:
+            rXnew = np.asarray([rX[0]] * len(mergedLength))
+            rYnew = np.asarray([rY[0]] * len(mergedLength))
+        else:    
+            mytck,myu=interpolate.splprep([rX,rY], k=1, s=0)
+            rXnew,rYnew= interpolate.splev(mergedLength, mytck)
+        if totLengthT == 0:
+            tXnew = np.asarray([tX[0]] * len(mergedLength))
+            tYnew = np.asarray([tY[0]] * len(mergedLength))
+        else:    
+            mytck,myu=interpolate.splprep([tX,tY], k=1, s=0)
+            tXnew,tYnew= interpolate.splev(mergedLength, mytck)
+        #print("one section result" , rXnew , rYnew , tXnew , tYnew, type(rXnew))
         return rXnew , rYnew , tXnew , tYnew
     
     def cumulLength(self, x, y):
@@ -608,6 +705,7 @@ def offset2Segment(x1, x2, x3, y1, y2, y3, o):
     X1 , X2 , Y1 ,Y2 = offset1Segment(x1 ,x2 ,y1 ,y2, o)
     X3 , X4 , Y3 ,Y4 = offset1Segment(x2 ,x3 ,y2 ,y3, o )
     interX , interY = intersec(X1, X2, X3, X4, Y1, Y2, Y3, Y4) 
+    #print("intersec x=", x1, X2, x3, " y=", y1 , y2, y3 , " o=", o, "=>", interX, interY)
     return interX , interY
 
 def offset1Segment(px1, px2 , py1, py2 ,o):
@@ -619,20 +717,40 @@ def offset1Segment(px1, px2 , py1, py2 ,o):
     DX = X2 - X1
     DY = Y2 - Y1
     L12 = math.sqrt(DX * DX + DY * DY)
-    r = o / L12
-    dx = r * DY
-    dy = r * DX
+    if L12 >0:
+        r = o / L12
+        dx = r * DY
+        dy = r * DX
+    else: #si le segment a une longueur nulle, 
+        dx = 0
+        dy = 0    
     #print("offset 1 segment" , X1, X2, Y1, Y2, o , X1-dx , X2-dx , Y1+dy , Y2+dy)
     return X1-dx , X2-dx , Y1+dy , Y2+dy 
 
 def intersec(x1 , x2 ,x3, x4 , y1 ,y2 ,y3, y4):
-    u = np.cross(np.array([x1 , y1, 1]), np.array([x2 , y2, 1]))
-    v = np.cross(np.array([x3 , y3, 1]), np.array([x4 , y4, 1]))
-    r = np.cross(u,v)
-    #print("intersec de ", x1 , x2 ,x3, x4 , y1 ,y2 ,y3, y4, "=" ,r)
-    if r[2] > 1e-10 or r[2] < -1e-10: #when different from 0, then the 2 segments are not // and there is an intersection 
-        return  (r[0]/r[2]) , (r[1]/r[2]) 
-    return (x2+x3)/2 , (y2+y3)/2   #si // retourne le point milieu
+    #première version avec numpy; ne va pas si un segment est 1 seul point
+    #u = np.cross(np.array([x1 , y1, 1]), np.array([x2 , y2, 1]))
+    #v = np.cross(np.array([x3 , y3, 1]), np.array([x4 , y4, 1]))
+    #r = np.cross(u,v)
+    ##print("intersec de ", x1 , x2 ,x3, x4 , y1 ,y2 ,y3, y4, "=" ,r)
+    #if r[2] > 1e-10 or r[2] < -1e-10: #when different from 0, then the 2 segments are not // and there is an intersection 
+    #    return  (r[0]/r[2]) , (r[1]/r[2]) 
+    #return (x2+x3)/2 , (y2+y3)/2   #si // retourne le point milieu
+    #print("dans intersec" , x1 , x2 ,x3, x4 , y1 ,y2 ,y3, y4)
+    if x1 == x2 and y1 == y2: #si la première ligne est un point, retourne p3
+        return x3, y3
+    if x3 == x4 and y3 == y4: #si la première ligne est un point, retourne p2
+        return x2, y2
+    #here we have 2 segments of line
+    d =  (x1-x2)*(y3-y4)-(y1-y2)*(x3-x4)
+    if d > 1e-10 or d< -1e-10: # si les segments ne sont pas // ou confondus
+        d12 = (x1*y2-y1*x2)
+        d34 = (x3*y4-y3*x4)
+        #return ( d12*(x4-x3)-d34*(x1-x2) ) / d , ( d12*(y3-y4)-d34*(y1-y2) ) / d   
+        #return ( d12*(x3-x4)-d34*(x2-x1) ) / d , ( d34*(y1-y2) - d12*(y3-y4)) / d
+        return ( d12*(x3-x4)-d34*(x1-x2) ) / d , ( d12*(y3-y4)-d34*(y1-y2) ) / d   
+    else:
+        return (x2+x3)/2 , (y2+y3)/2   #si // ou confondue, retourne le point milieu
 
 def lengthSegment(X , Y):
     l=[]

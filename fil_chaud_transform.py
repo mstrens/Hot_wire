@@ -149,10 +149,12 @@ class Transform:
             self.app.tRootY = self.app.tRootY * -1.0
             self.app.tRootX = np.flip(self.app.tRootX)
             self.app.tRootY = np.flip(self.app.tRootY)
+            self.app.tRootS = np.flip(self.app.tRootS)
         if self.app.vInvertTip.get() == 1:
             self.app.tTipY = self.app.tTipY * -1.0
             self.app.tTipX = np.flip(self.app.tTipX)
             self.app.tTipY = np.flip(self.app.tTipY)
+            self.app.tTipS = np.flip(self.app.tTipS)
 
         # Normalise the 2 profiles based on chords and apply covering on Root and Tip
         # Here we don't yet take care of position of bloc and of margin
@@ -336,6 +338,7 @@ class Transform:
         self.axesRoot.axis('equal')
         self.axesRoot.set_title('Root')
         self.lineRoot, = self.axesRoot.plot(self.app.tRootX , self.app.tRootY , color='red')
+        self.figRoot.set_tight_layout(True)
         self.canvasRoot = FigureCanvasTkAgg(self.figRoot, master=self.frame)  # A tk.DrawingArea.
         self.canvasRoot.draw()
         self.canvasRoot.get_tk_widget().grid(column=2, rowspan=10 , row=0, padx=(10,2) , pady=(2,2))
@@ -345,6 +348,7 @@ class Transform:
         self.axesTip.axis('equal')
         self.axesTip.set_title('Tip')
         self.lineTip, = self.axesTip.plot(self.app.tTipX , self.app.tTipY , color='blue')
+        self.figTip.set_tight_layout(True)
         self.canvasTip = FigureCanvasTkAgg(self.figTip, master=self.frame)  # A tk.DrawingArea.
         self.canvasTip.draw()
         self.canvasTip.get_tk_widget().grid(column=2, rowspan=10 , row=10, padx=(10,2) ,pady=(20,2))

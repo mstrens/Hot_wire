@@ -92,19 +92,20 @@ class Bloc:
         tk.Label(self.frame, text="   Tip leading edge").grid(column=0, row=r, pady=(1,1), sticky=W)
         tk.Entry(self.frame, textvariable=self.app.blocToTableLeadingTip , width='5', state='disabled').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W)
         
-        self.blocTopFig = Figure(figsize=(8, 6), dpi=100)
+        self.dotX = 10 # define the size and ratio of the figure
+        self.dotY = 6
+        self.blocTopFig = Figure(figsize=(self.dotX, self.dotY), dpi=100)
         self.blocTopAxes = self.blocTopFig.add_subplot(1,1,1)
-        self.blocTopAxes.set_xlim(0, 1600)
-        self.blocTopAxes.set_ylim(0, 1200)
         self.blocTopAxes.set_title('Top view')
         self.blocTopAxes.spines['top'].set_visible(False)
         self.blocTopAxes.spines['right'].set_visible(False)
         self.blocTopAxes.autoscale(enable=False)
-        #self.blocTopAxes.axis('equal')
-        self.plotTable, = self.blocTopAxes.plot([], [] ) #draw table
-        self.plotBloc, = self.blocTopAxes.plot([], [] ) #draw table
-        self.plotLeading, = self.blocTopAxes.plot([], [] , 'k--') #draw leading edge
-        self.plotTrailing, = self.blocTopAxes.plot([], [] , 'k--') #draw trailing edge
+        self.plotTable, = self.blocTopAxes.plot([], [] , color='green') #draw table
+        self.plotBloc, = self.blocTopAxes.plot([], [] , color='black') #draw bloc
+        self.plotLeading, = self.blocTopAxes.plot([], [] , 'k-.', color='black') #draw leading edge
+        self.plotTrailing, = self.blocTopAxes.plot([], [] , 'k--', color='black') #draw trailing edge
+        self.blocTopFig.legend((self.plotTable, self.plotBloc,self.plotLeading,self.plotTrailing ), ('Table', 'Bloc', 'Leading','Trailing'), 'upper right')
+        self.blocTopFig.set_tight_layout(True)
         self.blocTopCanvas = FigureCanvasTkAgg(self.blocTopFig, master=self.frame)  # A tk.DrawingArea.
         self.blocTopCanvas.draw()
         self.blocTopCanvas.get_tk_widget().grid(column=2, row=0, rowspan=20, padx=10 , pady=(20,2))
@@ -134,6 +135,21 @@ class Bloc:
         # draw table
         cMaxY = self.app.cMaxY.get()
         cMaxX = self.app.tableYY.get() - self.app.tableYG.get() - self.app.tableYD.get()
+        # set the limits of X and Y depending on table size (keeping predifine ratio of the figure)
+        maxX = cMaxX + 3
+        maxY = cMaxY + 4
+        limMinX =  - 3
+        limMinY =  - 3
+        zoom = 1
+        if ( maxY / maxX ) < ( self.dotY / self.dotX ):
+            limMaxX = limMinX + ( maxX / zoom )
+            limMaxY = limMinY + ( maxX / zoom * self.dotY / self.dotX)
+        else:
+            limMaxY = limMinY + (maxY / zoom)
+            limMaxX = limMinX + (maxY / zoom * self.dotX / self.dotY)   
+        self.blocTopAxes.set_xlim(limMinX, limMaxX)
+        self.blocTopAxes.set_ylim(limMinY, limMaxY)
+        
         self.plotTable.set_xdata([0, 0 , cMaxX, cMaxX, 0  ])
         self.plotTable.set_ydata([0 , cMaxY, cMaxY, 0 , 0 ])
         #draw bloc

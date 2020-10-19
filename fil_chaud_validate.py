@@ -22,11 +22,14 @@ class EntryFloat(tk.Entry) :
         try:  
             v = float(val)
             if v >= self.min and v <= self.max:
+                #print("v is in range")
                 self['bg'] = 'SystemWindow'  #apply normal background
+                #print("background is normal")
                 return fil_chaud_config.monApp.validateAll(self.level) 
         except :          
             pass
         self['bg'] = 'red'
+        #print("value is wrong")
         #print("background is done")
         self.focus_set()
         #print("focus is set")

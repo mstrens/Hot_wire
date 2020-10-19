@@ -30,7 +30,7 @@ class Material:
         r += 1
         tk.Label(self.frame, text="High speed for this material (mm/sec)").grid(column=0, row=r, pady=(20,2), sticky=W)
         #tk.Entry(self.frame, textvariable=self.app.mSpeedHigh , width='6').grid(column=1, row=r , padx=1,pady=(20,1), sticky=W)
-        EntryFloat(self.frame, self.app.mSpeedHigh , 1 , 50, self.levelCut , width='6' ).grid(column=1, row=r , padx=1,pady=(20,1), sticky=W)
+        EntryFloat(self.frame, self.app.mSpeedHigh , 0.1 , 20, self.levelCut , width='6' ).grid(column=1, row=r , padx=1,pady=(20,1), sticky=W)
     
         r += 1
         tk.Label(self.frame, text="      Heating at high speed (%)").grid(column=0, row=r, pady=(10,2), sticky=W)
@@ -45,7 +45,7 @@ class Material:
         r += 1
         tk.Label(self.frame, text="Low speed (mm/sec)").grid(column=0, row=r, pady=(20,2), sticky=W)
         #tk.Entry(self.frame, textvariable=self.app.mSpeedLow , width='6').grid(column=1, row=r , padx=1,pady=(20,1), sticky=W)
-        EntryFloat(self.frame, self.app.mSpeedLow , 1 , 50, self.levelCut , width='6' ).grid(column=1, row=r , padx=1,pady=(20,1), sticky=W)
+        EntryFloat(self.frame, self.app.mSpeedLow , 0.1 , 10, self.levelCut , width='6' ).grid(column=1, row=r , padx=1,pady=(20,1), sticky=W)
     
         r += 1
         tk.Label(self.frame, text="      Heating at low speed (%)").grid(column=0, row=r, pady=(10,2), sticky=W)

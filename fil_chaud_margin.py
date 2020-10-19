@@ -84,35 +84,43 @@ class Margin:
         blocRootY = [hOffset , hOffset, hOffset + blocHZ, hOffset + blocHZ, hOffset]
         blocTipY = blocRootY
         
-        self.figRoot = Figure(figsize=(10, 2), dpi=100)
+        self.dotX = 10 # define the size and ratio of the figure
+        self.dotY = 2.5   
+        self.figRoot = Figure(figsize=(self.dotX, self.dotY), dpi=100)
         self.axesRoot = self.figRoot.add_subplot(1,1,1)
-        self.axesRoot.set_xlim(0, 1300)
-        self.axesRoot.set_ylim(0, 260)
-        self.axesRoot.set_title('Root')
+        #self.axesRoot.set_xlim(0, 1300)
+        #self.axesRoot.set_ylim(0, 260)
+        #self.axesRoot.set_title('Root')
         self.axesRoot.autoscale(enable=False)
         self.axesRoot.spines['top'].set_visible(False)
         self.axesRoot.spines['right'].set_visible(False)
-        
+        #self.plotTableRoot, = self.axesRoot.plot([0, 0 , self.app.cMaxY.get(), self.app.cMaxY.get(), 0  ], [0 , self.app.cMaxZ.get(), self.app.cMaxZ.get(), 0 , 0 ] , color='green')
+        self.plotTableRoot, = self.axesRoot.plot([ ], [ ] , color='green')
         self.plotBlocRoot, = self.axesRoot.plot(blocRootX , blocRootY , color='black')
         self.plotRoot, = self.axesRoot.plot(self.app.pRootX , self.app.pRootY , color='red')
+        self.figRoot.legend((self.plotTableRoot, self.plotBlocRoot,self.plotRoot), ('Table', 'Bloc', 'Root profile'), 'upper right')
+        self.figRoot.set_tight_layout(True)
         self.canvasRoot = FigureCanvasTkAgg(self.figRoot, master=self.frame)  # A tk.DrawingArea.
         self.canvasRoot.draw()
-        self.canvasRoot.get_tk_widget().grid(column=2, rowspan=3, columnspan=20, row=5, pady=(20,2))
+        self.canvasRoot.get_tk_widget().grid(column=2, rowspan=20, columnspan=20, row=4, pady=(2,2))
         
-        self.figTip = Figure(figsize=(10, 2), dpi=100)
+        self.figTip = Figure(figsize=(self.dotX, self.dotY), dpi=100)
         self.axesTip = self.figTip.add_subplot(1,1,1)
-        self.axesTip.set_xlim(0,1300)
-        self.axesTip.set_ylim(0, 260)
-        self.axesTip.set_title('Tip')
+        #self.axesTip.set_xlim(0,1300)
+        #self.axesTip.set_ylim(0, 260)
+        #self.axesTip.set_title('Tip')
         self.axesTip.autoscale(enable=False)
         self.axesTip.spines['top'].set_visible(False)
         self.axesTip.spines['right'].set_visible(False)
         
+        self.plotTableTip, = self.axesTip.plot([ ], [ ] , color='green')
         self.plotBlocTip, = self.axesTip.plot(blocTipX , blocTipY , color='black')
         self.plotTip, = self.axesTip.plot(self.app.pTipX , self.app.pTipY , color='blue')
+        self.figTip.legend((self.plotTableTip, self.plotBlocTip,self.plotTip), ('Table', 'Bloc', 'Tip profile'), 'upper right')
+        self.figTip.set_tight_layout(True)
         self.canvasTip = FigureCanvasTkAgg(self.figTip, master=self.frame)  # A tk.DrawingArea.
         self.canvasTip.draw()
-        self.canvasTip.get_tk_widget().grid(column=2, rowspan=3, columnspan=20 , row=9, pady=(20,2))
+        self.canvasTip.get_tk_widget().grid(column=2, rowspan=20, columnspan=20 , row=24, pady=(2,2))
     
     def updatePlotMargin(self):
         blocRootX = [self.app.blocToTableTrailingRoot.get(), self.app.blocToTableLeadingRoot.get(), self.app.blocToTableLeadingRoot.get() ,
@@ -123,6 +131,29 @@ class Margin:
         blocHZ =  self.app.blocHZ.get()
         blocRootY = [hOffset , hOffset, hOffset + blocHZ, hOffset + blocHZ, hOffset]
         blocTipY = blocRootY
+        
+        # set the limits of X and Y depending on table size (keeping predifine ratio of the figure)
+        maxX = self.app.cMaxY.get() + 3
+        maxY = self.app.cMaxZ.get() + 4
+        limMinX =  - 3
+        limMinY =  - 3
+        #dotX =  1000
+        #dotY = 800
+        zoom = 1
+        if ( maxY / maxX ) < ( self.dotY / self.dotX ):
+            limMaxX = limMinX + ( maxX / zoom )
+            limMaxY = limMinY + ( maxX / zoom * self.dotY / self.dotX)
+        else:
+            limMaxY = limMinY + (maxY / zoom)
+            limMaxX = limMinX + (maxY / zoom * self.dotX / self.dotY)   
+        self.axesRoot.set_xlim(limMinX, limMaxX)
+        self.axesRoot.set_ylim(limMinY, limMaxY)
+        self.axesTip.set_xlim(limMinX, limMaxX)
+        self.axesTip.set_ylim(limMinY, limMaxY)
+        
+        #draw root table
+        self.plotTableRoot.set_xdata([0, 0 , self.app.cMaxY.get(), self.app.cMaxY.get(), 0  ])
+        self.plotTableRoot.set_ydata([0 , self.app.cMaxZ.get(), self.app.cMaxZ.get(), 0 , 0 ])
         # draw root bloc
         self.plotBlocRoot.set_xdata(blocRootX)
         self.plotBlocRoot.set_ydata(blocRootY)
@@ -130,6 +161,10 @@ class Margin:
         self.plotRoot.set_xdata(self.app.pRootX.tolist())
         self.plotRoot.set_ydata(self.app.pRootY.tolist())
         self.canvasRoot.draw()
+        
+        #draw tip table
+        self.plotTableTip.set_xdata([0, 0 , self.app.cMaxY.get(), self.app.cMaxY.get(), 0  ])
+        self.plotTableTip.set_ydata([0 , self.app.cMaxZ.get(), self.app.cMaxZ.get(), 0 , 0 ])
         # draw tip bloc
         self.plotBlocTip.set_xdata(blocTipX)
         self.plotBlocTip.set_ydata(blocTipY)
