@@ -23,38 +23,63 @@ class Cut:
         self.app = app
         self.frame = ttk.Frame(self.nb)
         self.levelCut = 30
-        #self.frame2 = ttk.Frame(self.nb)
         self.nb.add(self.frame, text='   Cut   ')
         self.lastGcodeFileName = ""
+        #self.l_frame= ttk.Frame(self.frame, relief="groove",padding=10)
+        #self.r_frame= ttk.Frame(self.frame, relief="groove",padding=10)
+        
+        self.l_frame= ttk.Frame(self.frame)
+        self.r_frame= ttk.Frame(self.frame)
+        self.l_frame.pack(side = LEFT , fill= Y)
+        self.r_frame.pack(side = RIGHT , fill= Y)
+        
         r=0
-        self.cutBtn = tk.Button(self.frame, text = 'Cut', width = 25, command = self.cut, state='disabled' )
+        self.cutBtn = tk.Button(self.l_frame, text = 'Cut', width = 25, command = self.cut, state='disabled' )
         self.cutBtn.grid(column=0, row=r , padx=1,pady=(20,1))
         r += 1
-        self.cancelBtn = tk.Button(self.frame, text = 'Cancel', command=self.app.tGrbl.resetGrbl, width = 25, state='disabled' )
+        self.cancelBtn = tk.Button(self.l_frame, text = 'Cancel', command=self.app.tGrbl.resetGrbl, width = 25, state='disabled' )
         self.cancelBtn.grid(column=0, columnspan=2, row=r , pady=(10,1), sticky=W)
         r += 1
-        self.button2 = tk.Button(self.frame, text = 'Save Gcode', width = 25, command = self.saveGcode)
+        self.button2 = tk.Button(self.l_frame, text = 'Save Gcode', width = 25, command = self.saveGcode)
         self.button2.grid(column=0, row=r , padx=1,pady=(20,1)) 
         r += 1
-        tk.Label(self.frame, text="Usual cutting speed (mm/sec)").grid(column=0, row=r, pady=(20,1), sticky=W)
-        EntryFloat(self.frame, self.app.vCut, 0.1, 10, self.levelCut , width='6').grid(column=1, row=r , padx=1,pady=(20,1), sticky=W )
+        tk.Label(self.l_frame, text="Usual cutting speed (mm/sec)").grid(column=0, row=r, pady=(20,1), sticky=W)
+        EntryFloat(self.l_frame, self.app.vCut, 0.1, 10, self.levelCut , width='6').grid(column=1, row=r , padx=1,pady=(20,1), sticky=W )
+        
+        #r += 1
+        #tk.Label(self.l_frame, text="Entry slope (degree)").grid(column=0, row=r, pady=(2,1), sticky=W)
+        r += 1
+        tk.Label(self.l_frame, text="Entry slope (degree)         At root)").grid(column=0, row=r, pady=(10,1), sticky=E)
+        EntryFloat(self.l_frame, self.app.angleInRoot, -70, +70, self.levelCut , width='6').grid(column=1, row=r , padx=1,pady=(10,1), sticky=W )
+        r += 1
+        tk.Label(self.l_frame, text="At tip)").grid(column=0, row=r, pady=(1,1), sticky=E)
+        EntryFloat(self.l_frame, self.app.angleInTip, -70, +70, self.levelCut , width='6').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W )
+        #r += 1
+        #tk.Label(self.l_frame, text="Exit slope (degree)").grid(column=0, row=r, pady=(5,1), sticky=W)
+        r += 1
+        tk.Label(self.l_frame, text="Exit slope (degree)          At root)").grid(column=0, row=r, pady=(1,1), sticky=E)
+        EntryFloat(self.l_frame, self.app.angleOutRoot, -70, +70, self.levelCut , width='6').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W )
+        r += 1
+        tk.Label(self.l_frame, text="At tip)").grid(column=0, row=r, pady=(1,1), sticky=E)
+        EntryFloat(self.l_frame, self.app.angleOutTip, -70, +70, self.levelCut , width='6').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W )
         
         r += 1
-        tk.Label(self.frame, text="Errors").grid(column=0, row=r, pady=(20,1), padx=(10,1), sticky=W)
+        tk.Label(self.l_frame, text="Errors").grid(column=0, row=r, pady=(20,1), padx=(2,1), sticky=W)
         r += 1
-        tk.Label(self.frame, textvariable=self.app.cutMsg,  height= 10).grid(column=0, columnspan=2, row=r, pady=(1,1), padx=(10,1) , sticky=NW)
+        tk.Label(self.l_frame, textvariable=self.app.cutMsg,  height= 10).grid(column=0, columnspan=2, row=r, pady=(1,1), padx=(10,1) , sticky=NW)
 
-        r = 30
-        tk.Label(self.frame, text="   Display starts at ").grid(column=0, row=r, pady=(1,1), sticky=E)
+        
         r += 1
-        tk.Label(self.frame, text="X (mm)").grid(column=0, row=r, pady=(1,1), sticky=E)
-        EntryFloat(self.frame, self.app.limMinX, 0, 1500, self.levelCut , width='6').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W )
+        tk.Label(self.l_frame, text="   Display starts at ").grid(column=0, row=r, pady=(10,1), sticky=E)
         r += 1
-        tk.Label(self.frame, text="Y (mm)").grid(column=0, row=r, pady=(1,1), sticky=E)
-        EntryFloat(self.frame, self.app.limMinY, 0, 500, self.levelCut , width='6').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W )
+        tk.Label(self.l_frame, text="X (mm)").grid(column=0, row=r, pady=(1,1), sticky=E)
+        EntryFloat(self.l_frame, self.app.limMinX, 0, 1500, self.levelCut , width='6').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W )
         r += 1
-        tk.Label(self.frame, text="Zoom factor").grid(column=0, row=r, pady=(1,1), sticky=E)
-        ttk.Combobox(self.frame,textvariable=self.app.zoom , values=["1X" , "2X","5X" , "10X","20X" , "50" , "100X"],
+        tk.Label(self.l_frame, text="Y (mm)").grid(column=0, row=r, pady=(1,1), sticky=E)
+        EntryFloat(self.l_frame, self.app.limMinY, 0, 500, self.levelCut , width='6').grid(column=1, row=r , padx=1,pady=(1,1), sticky=W )
+        r += 1
+        tk.Label(self.l_frame, text="Zoom factor").grid(column=0, row=r, pady=(1,1), sticky=E)
+        ttk.Combobox(self.l_frame,textvariable=self.app.zoom , values=["1X" , "2X","5X" , "10X","20X" , "50" , "100X"],
             state="readonly", width='4').grid(column=1, row=r , padx=1,pady=(1,1), sticky=E)
         self.app.zoom.trace('w', self.calculateRedraw2 )
         
@@ -71,9 +96,10 @@ class Cut:
         self.lineWireRoot1, = self.axesRoot.plot( [], [], 'k:' ,color= 'black' ) 
         self.lineProfileRoot2, = self.axesRoot.plot( [], [], color='red' )
         self.lineBlocRoot, = self.axesRoot.plot( [], [], color='black' )
+        self.arrowRoot = None  #use to annotate the line with an arrow
         self.figRoot.legend((self.lineProfileRoot2, self.lineWireRoot1, self.lineBlocRoot), ('Root profile' , 'Wire', 'Bloc'), 'upper right')
         self.figRoot.set_tight_layout(True)
-        self.canvasRoot = FigureCanvasTkAgg(self.figRoot, master=self.frame)  # A tk.DrawingArea.
+        self.canvasRoot = FigureCanvasTkAgg(self.figRoot, master=self.r_frame)  # A tk.DrawingArea.
         self.canvasRoot.draw()
         self.canvasRoot.get_tk_widget().grid(column=2, row=0, rowspan=22, padx=10 , pady=(2,2))
         
@@ -85,11 +111,12 @@ class Cut:
         self.lineWireTip1, = self.axesTip.plot( [], [] , 'k:' , color='black') 
         self.lineProfileTip2, = self.axesTip.plot( [], [] , color='blue')
         self.lineBlocTip, = self.axesTip.plot( [], [], color='black' )
+        self.arrowTip = None
         self.figTip.legend((self.lineProfileTip2, self.lineWireTip1, self.lineBlocTip), ('Tip profile' , 'Wire', 'Bloc'), 'upper right')
         self.figTip.set_tight_layout(True)
-        self.canvasTip = FigureCanvasTkAgg(self.figTip, master=self.frame)  # A tk.DrawingArea.
+        self.canvasTip = FigureCanvasTkAgg(self.figTip, master=self.r_frame)  # A tk.DrawingArea.
         self.canvasTip.draw()
-        self.canvasTip.get_tk_widget().grid(column=2, row=22, rowspan=22, padx=10 , pady=(2,2))
+        self.canvasTip.get_tk_widget().grid(column=2, row=22, rowspan=22, padx=10 , pady=(10,2))
 
     def calback(self, a , b, c):
         self.calculateRedraw()
@@ -126,6 +153,17 @@ class Cut:
         self.lineProfileRoot2.set_ydata(self.app.pRootY)
         self.lineBlocRoot.set_xdata(blocRootX)
         self.lineBlocRoot.set_ydata(blocRootY)
+        if self.arrowRoot != None:
+            self.axesRoot.texts.remove(self.arrowRoot)
+        deltaX, deltaY = self.calculateDelta(self.oSimRX, self.oSimRY, 1 , limMaxX-limMinX )
+        self.arrowRoot = self.axesRoot.annotate('', xy=(self.oSimRX[1] + deltaX, self.oSimRY[1] + deltaY), xycoords='data',
+                            #horizontalalignment='center',
+                            #verticalalignment='center',
+                            color='black', alpha=0.5,
+                            xytext=(self.oSimRX[1], self.oSimRY[1]), textcoords='data',
+                            arrowprops=dict(facecolor='black', headlength=10, shrink = 0.05, alpha=0.5, width=2, headwidth=5),
+                            )
+        
         self.canvasRoot.draw_idle() 
 
         self.axesTip.set_xlim(limMinX, limMaxX)
@@ -136,8 +174,26 @@ class Cut:
         self.lineProfileTip2.set_ydata(self.app.pTipY)
         self.lineBlocTip.set_xdata(blocTipX)
         self.lineBlocTip.set_ydata(blocTipY)
+        if self.arrowTip != None:
+            self.axesTip.texts.remove(self.arrowTip)
+        deltaX, deltaY = self.calculateDelta(self.oSimTX, self.oSimTY, 1 , limMaxX-limMinX )
+        self.arrowTip = self.axesTip.annotate('', xy=(self.oSimTX[1] + deltaX, self.oSimTY[1] + deltaY), xycoords='data',
+                            #horizontalalignment='center',
+                            #verticalalignment='center',
+                            color='black', alpha=0.5,
+                            xytext=(self.oSimTX[1], self.oSimTY[1]), textcoords='data',
+                            arrowprops=dict(facecolor='black', headlength=10, shrink = 0.05, alpha=0.5, width=2, headwidth=5),
+                            )
+        
         self.canvasTip.draw_idle() 
 
+    def calculateDelta(self, X, Y, i, distX ): #i=index of the point in the array, distX= size of the X axis (mm)
+        dX = X[i+1]- X[i]
+        dY = Y[i+1]- Y[i]
+        lXY = math.sqrt(dX * dX + dY * dY)
+        #print("X, X+1 , Y, Y+1, distX ", X[i], X[i+1], Y[i], Y[i+1], distX)
+        #print("dX, dY, lXY, deltaX, deltaY",  dX, dY, lXY, dX / lXY * 0.05 * distX , dY / lXY * 0.05 * distX )
+        return dX / lXY* 0.05 * distX , dY / lXY * 0.05 * distX 
 
     def cut(self):
         self.app.tGrbl.stream(self.gcode)
@@ -162,7 +218,7 @@ class Cut:
 
 
     def calculate(self):
-        #it start from PRoot and pTip (= profile taking care of bloc and margin)
+        #it start from PRoot and pTip (= profile taking care of bloc size and margin)
         #add enty and exit points in bloc
         #applies offset for radiance
         #simplifies the profiles if possible = simRoot and Tip
@@ -181,14 +237,19 @@ class Cut:
             eTipX =  self.app.pTipX.tolist()
             eTipY =  self.app.pTipY.tolist()
             eTipS = list(self.app.pTipS)
+            deltaInRoot = math.tan(self.app.angleInRoot.get()/180*math.pi ) * self.app.mTrailingRoot.get()
+            deltaOutRoot = math.tan(self.app.angleOutRoot.get()/180*math.pi ) * self.app.mTrailingRoot.get()
+            deltaInTip = math.tan(self.app.angleInTip.get()/180*math.pi ) * self.app.mTrailingTip.get()
+            deltaOutTip = math.tan(self.app.angleOutTip.get()/180*math.pi ) * self.app.mTrailingTip.get()
+            
             eRootX.insert(0,self.app.blocToTableTrailingRoot.get())
-            eRootY.insert(0, self.app.pRootY[0])
+            eRootY.insert(0, self.app.pRootY[0]  - deltaInRoot )
             eTipX.insert(0,self.app.blocToTableTrailingTip.get())
-            eTipY.insert(0, self.app.pTipY[0])
+            eTipY.insert(0, self.app.pTipY[0] - deltaInTip )
             eRootX.append(self.app.blocToTableTrailingRoot.get())
-            eRootY.append(self.app.pRootY[-1])
+            eRootY.append(self.app.pRootY[-1] - deltaOutRoot )
             eTipX.append(self.app.blocToTableTrailingTip.get())
-            eTipY.append(self.app.pTipY[-1])
+            eTipY.append(self.app.pTipY[-1] - deltaOutTip)
             eRootS.insert(0,4) # add a Synchro (with radiance) point
             eTipS.insert(0,4) # add a Synchro (with radiance) point
             eRootS[-1] = 4 # mark the last point as Synchro (with radiance) point

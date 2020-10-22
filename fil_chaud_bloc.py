@@ -104,6 +104,8 @@ class Bloc:
         self.plotBloc, = self.blocTopAxes.plot([], [] , color='black') #draw bloc
         self.plotLeading, = self.blocTopAxes.plot([], [] , 'k-.', color='black') #draw leading edge
         self.plotTrailing, = self.blocTopAxes.plot([], [] , 'k--', color='black') #draw trailing edge
+        #arrow = self.blocTopAxes.arrow(10,30, 50, 50, head_width=10) 
+        
         self.blocTopFig.legend((self.plotTable, self.plotBloc,self.plotLeading,self.plotTrailing ), ('Table', 'Bloc', 'Leading','Trailing'), 'upper right')
         self.blocTopFig.set_tight_layout(True)
         self.blocTopCanvas = FigureCanvasTkAgg(self.blocTopFig, master=self.frame)  # A tk.DrawingArea.

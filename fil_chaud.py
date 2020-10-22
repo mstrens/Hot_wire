@@ -45,7 +45,7 @@ class App:
         self.initDone = False
         self.initGuiData()
         self.master = master
-        self.master.title("Hot wire cutter (version 0.1.e)")
+        self.master.title("Hot wire cutter (version 0.1.f)")
         self.nb = ttk.Notebook(self.master)
         self.nb.enable_traversal()    
         self.queueTkSendMsg = queue.Queue()
@@ -231,7 +231,12 @@ class App:
         self.hMinTip = DoubleVar(value='10.0')          #calculated
         self.hOffset = DoubleVar(value='10.0')          #heigh of the base of the bloc
         self.alignProfil = StringVar(value="Trailing")
-        self.hProfil = DoubleVar(value='20.0')
+        self.hProfil = DoubleVar(value='20.0')          #heigh of the profile in the bloc
+        self.angleInRoot = DoubleVar(value='0.0')
+        self.angleInTip = DoubleVar(value='0.0')
+        self.angleOutRoot = DoubleVar(value='0.0')
+        self.angleOutTip = DoubleVar(value='0.0')
+        
         """
         self.hMaxRootNorm = 0
         self.hMinRootNorm = 0
@@ -349,6 +354,13 @@ class App:
             self.hOffset.set(value= config.getfloat("Bloc", "hOffset"))
             self.alignProfil.set(value= config.get("Bloc", "alignProfil"))
             self.hProfil.set(value= config.get("Bloc", "hProfil"))
+            try:
+                self.angleInRoot.set(value=config.getfloat("Bloc", "angleInRoot"))
+                self.angleInTip.set(value=config.getfloat("Bloc", "angleInTip"))
+                self.angleOutRoot.set(value=config.getfloat("Bloc", "angleOutRoot"))
+                self.angleOutTip.set(value=config.getfloat("Bloc", "angleOutTip"))     
+            except:
+                pass
             """
             self.hMaxRootNorm = config.get("Bloc", "hMaxRootNorm")
             self.hMinRootNorm = config.get("Bloc", "hMinRootNorm")
@@ -536,6 +548,10 @@ class App:
         config.set("Bloc", "hOffset", str(self.hOffset.get()))
         config.set("Bloc", "alignProfil", self.alignProfil.get())
         config.set("Bloc", "hProfil", str(self.hProfil.get()))
+        config.set("Bloc", "angleInRoot", str(self.angleInRoot.get()))
+        config.set("Bloc", "angleInTip", str(self.angleInTip.get()))
+        config.set("Bloc", "angleOutRoot", str(self.angleOutRoot.get()))
+        config.set("Bloc", "angleOutTip", str(self.angleOutTip.get()))
         
         config.set("Material", "mSpeedHigh", str(self.mSpeedHigh.get()))
         config.set("Material", "mSpeedHalf", str(self.mSpeedHalf.get()))

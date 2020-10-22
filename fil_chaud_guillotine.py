@@ -24,8 +24,7 @@ class Guillotine:
         #self.t_frame.pack(side = TOP)
         self.l_frame.pack(side = LEFT , fill= Y)
         self.r_frame.pack(side = RIGHT , fill= Y)
-        self.t_frame.pack(side = TOP)
-                
+        self.t_frame.pack(side = TOP)        
         self.m_frame.pack(side = TOP)
         r = 0
         tk.Label(self.l_frame, text="Guillotine",font=("Helvetica", 18)).grid(column=0, row=r, pady=(1,1))
